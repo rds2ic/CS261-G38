@@ -487,3 +487,18 @@ class TrafficSimulatorUI(ctk.CTkFrame):
 
     def save_junction_data(self):
         print("clicked Save Traffic Junction and Collected Data")
+
+if __name__ == "__main__":
+    app = ctk.CTk()
+    app.title("Traffic Junction Modelling")
+    app.geometry("1300x800")
+    app.minsize(900, 600)
+
+    container = ctk.CTkFrame(app)  
+    container.pack(side = "top", fill = "both", expand = True) 
+
+    container.grid_rowconfigure(0, weight = 1)
+    container.grid_columnconfigure(0, weight = 1)
+    page = TrafficSimulatorUI(container, app)
+    page.grid(row = 0, column = 0, sticky ="news")
+    app.mainloop()

@@ -27,7 +27,7 @@ class TrafficCollectionUI(ctk.CTkFrame):
     
     # Helper function to make widgets a button
     def make_widget_button(self, widget, id):
-        widget.bind("<Button-1>", lambda e: print(f"Clicked junction {id}"))
+        widget.bind("<Button-1>", lambda e: self.junction_pressed(id))
         widget.configure(cursor="hand2")
 
     def _build_toolbar(self):
@@ -160,8 +160,10 @@ class TrafficCollectionUI(ctk.CTkFrame):
         except:
             placeholder = ctk.CTkFrame(frame, width=200, height=200, fg_color="#CCCCCC")
             placeholder.grid(row=1, column=0, pady=10)
+            self.make_widget_button(placeholder, junction_id)
             placeholder_text = ctk.CTkLabel(placeholder, text="Junction\nImage", text_color="black")
             placeholder_text.place(relx=0.5, rely=0.5, anchor="center")
+            self.make_widget_button(placeholder_text, junction_id)
             placeholder.pack_propagate(False)
 
         # Frame for all the stats
@@ -226,6 +228,10 @@ class TrafficCollectionUI(ctk.CTkFrame):
 
     def compare_junctions(self):
         print("Comparing traffic junctions...")
+    
+    def junction_pressed(self, junctionid):
+        self.controller.show_page("TrafficSimulatorUI")
+        print(f"Clicked junction {junctionid}")
 
 # For testing purposes
 if __name__ == "__main__":
