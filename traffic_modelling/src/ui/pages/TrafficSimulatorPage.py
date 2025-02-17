@@ -1,5 +1,6 @@
 import tkinter as tk
 import customtkinter as ctk
+import pickle
 
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("blue")
@@ -7,6 +8,8 @@ ctk.set_default_color_theme("blue")
 class TrafficSimulatorUI(ctk.CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
+
+        self.configuration = {}
 
         self.controller = controller # Main tkinter page
 
@@ -190,6 +193,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         self._build_one_direction_parameter(parent, "Westbound", ["West", "North", "South"])
 
     def _build_one_direction_parameter(self, parent, dir_label, sub_exits):
+        self.configuration[f"{dir_label} flow"] = {}
         container = ctk.CTkFrame(parent, fg_color="#FAFAFA", corner_radius=5)
         container.pack(padx=5, pady=(5,10), fill="x")
 
@@ -200,6 +204,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         flows = []
         for i, exit_dir in enumerate(sub_exits, start=1):
             flow_var = tk.StringVar(value="50")
+            self.configuration[f"{dir_label} flow"][exit_dir] = flow_var
             rowf = ctk.CTkFrame(container, fg_color="#FAFAFA")
             rowf.pack(anchor="w", padx=25, pady=2, fill="x")
 
@@ -256,7 +261,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
             "S → E", "S → N", "S → W",
             "W → S", "W → E", "W → N"
         ]
-
+        self.configuration["Special Vehicles"] = {}
         for direction in directions:
             self._build_config_entry(flow_frame, f"{direction}")
 
@@ -300,7 +305,9 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         lbl = ctk.CTkLabel(row, text=f"{label}:", text_color=self.text_color)
         lbl.grid(row=0, column=0, padx=5, sticky="w")
 
-        entry = ctk.CTkEntry(row, width=60, fg_color="white", text_color="black")
+        var = tk.StringVar(value="")
+        self.configuration["Special Vehicles"][label] = var
+        entry = ctk.CTkEntry(row, width=60, fg_color="white", text_color="black", textvariable=var)
         entry.grid(row=0, column=1, padx=5, sticky="w")
 
     def _build_config_row(self, parent, label, options):
@@ -311,6 +318,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         lbl.grid(row=0, column=0, padx=5, sticky="w")
 
         var = tk.StringVar(value=options[0])
+        self.configuration[label] = var
         opt_menu = ctk.CTkOptionMenu(
             row,
             values=options,
@@ -328,8 +336,11 @@ class TrafficSimulatorUI(ctk.CTkFrame):
 
         lbl = ctk.CTkLabel(row, text=f"{label}:", text_color=self.text_color)
         lbl.grid(row=0, column=0, padx=5, sticky="w")
+        
+        var = tk.StringVar(value="")
+        self.configuration["Special Vehicles"][label] = var
 
-        entry = ctk.CTkEntry(row, width=60, fg_color="white", text_color="black")
+        entry = ctk.CTkEntry(row, width=60, fg_color="white", text_color="black", textvariable=var)
         entry.grid(row=0, column=1, padx=5, sticky="w")
 
     def _build_param_buttons(self, parent):
@@ -481,9 +492,31 @@ class TrafficSimulatorUI(ctk.CTkFrame):
 
     def save_parameters(self):
         print("clicked Save Parameter Settings")
+        config_file = {}
+        for key in self.configuration:
+            if isinstance(self.configuration[key], dict):
+                config_file[key] = {}
+                for subkey in self.configuration[key]:
+                    config_file[key][subkey] = self.configuration[key][subkey].get()
+                    # print(f"{key} - {subkey}: {self.configuration[key][subkey].get()}")
+            else:
+                config_file[key] = self.configuration[key].get()
+                # print(f"{key}: {self.configuration[key].get()}")
+        print(config_file)
+        with (open("config_file.pkl", "wb")) as f:
+            pickle.dump(config_file, f)
 
     def load_parameters(self):
         print("clicked Load Parameter Settings")
+        with (open("config_file.pkl", "rb")) as f:
+            config_file = pickle.load(f)
+            # print(self.configuration)
+            for key in self.configuration:
+                if isinstance(self.configuration[key], dict):
+                    for subkey in self.configuration[key]:
+                        self.configuration[key][subkey].set(config_file[key][subkey])
+                else:
+                    self.configuration[key].set(config_file[key])
 
     def save_junction_data(self):
         print("clicked Save Traffic Junction and Collected Data")

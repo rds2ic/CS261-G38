@@ -33,8 +33,6 @@ class TrafficSimulatorApp(ctk.CTk):
     def show_page(self, page):
         self.pages[page].tkraise()
 
-
-
 if __name__ == "__main__":
     app = TrafficSimulatorApp()
     app.mainloop()
