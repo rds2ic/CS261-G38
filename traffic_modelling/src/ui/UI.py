@@ -2,11 +2,12 @@ import tkinter as tk
 import customtkinter as ctk
 from pages.TrafficSimulatorPage import TrafficSimulatorUI
 from pages.TrafficCollectionPage import TrafficCollectionUI
+from pages.DataAnalysisPage import DataAnalysisUI
 
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("blue")
 
-PAGES = {"TrafficSimulatorUI": TrafficSimulatorUI, "TrafficCollectionUI": TrafficCollectionUI}
+PAGES = {"TrafficSimulatorUI": TrafficSimulatorUI, "TrafficCollectionUI": TrafficCollectionUI, "DataAnalysisUI":DataAnalysisUI}
 
 class TrafficSimulatorApp(ctk.CTk):
     def __init__(self):

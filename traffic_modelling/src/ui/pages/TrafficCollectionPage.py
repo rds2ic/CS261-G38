@@ -2,7 +2,7 @@ import tkinter as tk
 import tkinter.messagebox
 from typing import List
 import customtkinter as ctk
-from PIL import Image # pip install pillow
+from PIL import Image # pip3 install pillow
 
 ctk.set_appearance_mode("Light") # can be system, light or dark
 ctk.set_default_color_theme("blue") # can be blue, green or dark blue
@@ -227,6 +227,7 @@ class TrafficCollectionUI(ctk.CTkFrame):
         self.priority_value.configure(text=f"{left_value}:{right_value}")
 
     def compare_junctions(self):
+        self.controller.show_page("DataAnalysisPage")
         print("Comparing traffic junctions...")
     
     def junction_pressed(self, junctionid):
