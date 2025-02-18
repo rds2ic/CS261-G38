@@ -18,6 +18,37 @@ class DataAnalysisUI(ctk.CTkFrame):
         self.small_font = ctk.CTkFont(size=11)
         self.text_color = "black"
 
+
+    # PANEL SETTINGS
+
+        # tool bar (top, fixed)
+        self._build_top_toolbar()
+
+    # TOOLBAR
+    
+    def _build_top_toolbar(self):
+        toolbar = ctk.CTkFrame(self, fg_color="#EEEEEE")
+        toolbar.pack(side="top", fill="x")
+
+        # .grid to position inside the toolbar
+        for col in range(8):
+            toolbar.grid_columnconfigure(col, weight=0)
+        toolbar.grid_columnconfigure(1, weight=1)
+        toolbar.grid_columnconfigure(7, weight=1)
+
+        back_button = ctk.CTkButton(
+            toolbar, text="← Back to Traffic Collection",
+            text_color= "white",
+            command=self.back_to_traffic_collection
+        )
+        back_button.grid(row=0, column=0, padx=(10,10), pady=5, sticky="w")
+
+    #  button print messages (for debug)
+
+    def back_to_traffic_collection(self):
+        self.controller.show_page("TrafficCollectionUI")
+        print("clicked Back to Traffic Collection")
+
 # For testing purposes
 if __name__ == "__main__":
     app = ctk.CTk()

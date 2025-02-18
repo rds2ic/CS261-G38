@@ -227,7 +227,7 @@ class TrafficCollectionUI(ctk.CTkFrame):
         self.priority_value.configure(text=f"{left_value}:{right_value}")
 
     def compare_junctions(self):
-        self.controller.show_page("DataAnalysisPage")
+        self.controller.show_page("DataAnalysisUI")
         print("Comparing traffic junctions...")
     
     def junction_pressed(self, junctionid):
