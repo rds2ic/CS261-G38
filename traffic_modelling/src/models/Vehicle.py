@@ -1,5 +1,5 @@
 class Vehicle:
-    def __init__(self, entry, exit):
+    def __init__(self, entry, exit=None):
         self.entry = entry
         self.exit = exit
     
@@ -10,4 +10,4 @@ class Vehicle:
         return self.exit
     
     def getWaitTime(self):
-        return self.exit - self.entry
+        return self.exit - self.entry if self.exit else None
