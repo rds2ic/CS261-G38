@@ -2,6 +2,7 @@ class Vehicle:
     def __init__(self, entry, exit=None):
         self.entry = entry
         self.exit = exit
+        self.time = 0
     
     def getEntry(self):
         return self.entry
