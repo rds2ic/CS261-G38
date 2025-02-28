@@ -152,8 +152,8 @@ if __name__ == '__main__':
     # Create a Junction instance with the given traffic flows.
     # Each tuple is (straight, right, left) in vehicles per hour.
     junction = Junction(
-        north_traffic=(200, 0, 0),   # Total 300 vph
-        south_traffic=(150, 0, 0),   # Total 250 vph
+        north_traffic=(200, 50, 50),   # Total 300 vph
+        south_traffic=(150, 50, 50),   # Total 250 vph
         east_traffic=(50, 50, 50),     # Total 150 vph
         west_traffic=(50, 25, 25)      # Total 100 vph
     )
