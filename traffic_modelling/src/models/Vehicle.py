@@ -15,4 +15,4 @@ class Vehicle:
         return self.exit
     
     def getWaitTime(self):
-        return self.exit - self.entry if self.exit else None
+        return self.exit - self.entry if self.exit is not None else None
