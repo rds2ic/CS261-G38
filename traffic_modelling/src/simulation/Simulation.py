@@ -1,12 +1,12 @@
-from models import Junction
-from models import Vehicle
+from models import Junction, Vehicle
+
 
 class Simulation:
     def __init__(self, junction : Junction, simulation_duration : int = 3600):
         self.time = 0           # Time in seconds
         self.cycle_length = 10  # Length of a cycle in seconds
-        self.junction = junction 
-        self.simulation_duration = simulation_duration
+        self.junction = junction # Junction config to be used
+        self.simulation_duration = simulation_duration # Duration of the simulation in seconds
 
         # Queues for each approach and movement
         self.queues = {
@@ -114,16 +114,28 @@ class Simulation:
                     self.wait_times[direction].append(wait_time)
 
     def calculateAverageWaitTime(self):
-        """ Returns the average wait time per direction as (float, float, float, float) """
-        pass
+        """ Returns the average wait time per direction as {"north": float, "south": float, "east": float, "west": float} """
+        avg_wait_times = {}
+        for direction in ["north", "south", "east", "west"]:
+            wait_times = self.wait_times[direction]
+            avg_wait_time = sum(wait_times) / len(wait_times) if wait_times else None
+            avg_wait_times[direction] = avg_wait_time
+        return avg_wait_times
 
     def calculateMaxWaitTimes(self):
-        """ Returns the maximum wait times per direction as (int, int, int, int) """
-        pass
+        """ Returns the maximum wait times per direction as {"north": float, "south": float, "east": float, "west": float} """
+        max_wait_times = {}
+        for direction in ["north", "south", "east", "west"]:
+            wait_times = self.wait_times[direction]
+            max_wait_time = max(wait_times) if wait_times else None
+            max_wait_times[direction] = max_wait_time
+        return max_wait_times
+        
 
-    def calculateMaxQueueLengths(self):
-        """ Returns the maximum queue lengths per direction as (int, int, int, int) """
-        pass
+    def getMaxQueueLengths(self):
+        """ Returns the maximum queue lengths per direction as {"north": float, "south": float, "east": float, "west": float} """
+        return self.max_queue_lengths
+        
 
     def getActivePhase(self):
         """ Returns the active phase of the traffic light """
@@ -131,3 +143,32 @@ class Simulation:
 
     def getInput(self, input):
         pass
+
+
+
+if __name__ == '__main__':
+    """ Test program """
+
+    # Create a Junction instance with the given traffic flows.
+    # Each tuple is (straight, right, left) in vehicles per hour.
+    junction = Junction(
+        north_traffic=(200, 0, 0),   # Total 300 vph
+        south_traffic=(150, 0, 0),   # Total 250 vph
+        east_traffic=(50, 50, 50),     # Total 150 vph
+        west_traffic=(50, 25, 25)      # Total 100 vph
+    )
+
+    # Create a Simulation instance with a 1-hour duration (3600 seconds).
+    sim = Simulation(junction, simulation_duration=3600)
+
+    # Run the simulation.
+    sim.runSimulation()
+
+    # Calculate and print the output statistics.
+    avg_wait = sim.calculateAverageWaitTime()
+    max_wait = sim.calculateMaxWaitTimes()
+    max_queues = sim.getMaxQueueLengths()
+
+    print("Average Wait Times (seconds):", avg_wait)
+    print("Maximum Wait Times (seconds):", max_wait)
+    print("Maximum Queue Lengths:", max_queues)
