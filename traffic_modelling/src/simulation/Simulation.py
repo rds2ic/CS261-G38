@@ -15,7 +15,7 @@ class Simulation:
             'east': [],
             'west': []
         }
-
+               
         # Record wait times per direction.
         self.wait_times = {
             'north': [],
@@ -60,6 +60,18 @@ class Simulation:
         # Fixed turning cost
         right_turn_cost = 2
         left_turn_cost = 1
+        
+        #fixed reaction time costs
+        first_reaction_cost = 3  #first car reaction to traffic lights
+        gap_reaction_cost = 2
+        
+        # Track when the last vehicle exited per direction
+        last_exit_time = {
+            'north': 0,
+            'south': 0,
+            'east': 0,
+            'west': 0
+        }
 
         # Main simulation loop
         for t in range(self.simulation_duration):
@@ -93,17 +105,28 @@ class Simulation:
             # Process the active phase
             for direction in active_phase:
                 if self.queues[direction]:
-                    vehicle = self.queues[direction].pop(0)
+                    vehicle = self.queues[direction][0]  
                     
-                    if vehicle.movement == "right":
-                        cost = right_turn_cost
-                    elif vehicle.movement == "left":
-                        cost = left_turn_cost
+                    if last_exit_time[direction] == 0:
+                        reaction_time = first_reaction_cost
                     else:
-                        cost = 0
-                    
-                exit_time = t + cost
-                vehicle.setExit(exit_time)
-                wait_time = vehicle.getWaitTime()
-                self.wait_times[direction].append(wait_time)
+                        reaction_time = gap_reaction_cost
 
+                    if t >= last_exit_time[direction] + reaction_time:
+                        vehicle = self.queues[direction].pop(0)
+                        
+                        if vehicle.movement == "right":
+                            cost = right_turn_cost
+                        elif vehicle.movement == "left":
+                            cost = left_turn_cost
+                        else:
+                            cost = 0
+                        
+                        exit_time = t + cost
+                        vehicle.setExit(exit_time)
+                        last_exit_time[direction] = exit_time #update the last_exit_time of the most recent vehicle
+
+                        wait_time = vehicle.getWaitTime()
+                        self.wait_times[direction].append(wait_time)
+                        
+                        
