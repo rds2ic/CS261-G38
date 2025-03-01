@@ -112,34 +112,3 @@ class Simulation:
                     vehicle.setExit(exit_time)
                     wait_time = vehicle.getWaitTime()
                     self.wait_times[direction].append(wait_time)
-
-    def calculateAverageWaitTime(self):
-        """ Returns the average wait time per direction as {"north": float, "south": float, "east": float, "west": float} """
-        avg_wait_times = {}
-        for direction in ["north", "south", "east", "west"]:
-            wait_times = self.wait_times[direction]
-            avg_wait_time = sum(wait_times) / len(wait_times) if wait_times else None
-            avg_wait_times[direction] = avg_wait_time
-        return avg_wait_times
-
-    def calculateMaxWaitTimes(self):
-        """ Returns the maximum wait times per direction as {"north": float, "south": float, "east": float, "west": float} """
-        max_wait_times = {}
-        for direction in ["north", "south", "east", "west"]:
-            wait_times = self.wait_times[direction]
-            max_wait_time = max(wait_times) if wait_times else None
-            max_wait_times[direction] = max_wait_time
-        return max_wait_times
-        
-
-    def getMaxQueueLengths(self):
-        """ Returns the maximum queue lengths per direction as {"north": float, "south": float, "east": float, "west": float} """
-        return self.max_queue_lengths
-        
-
-    def getActivePhase(self):
-        """ Returns the active phase of the traffic light """
-        return self.time % self.cycle_length
-
-    def getInput(self, input):
-        pass
