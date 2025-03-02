@@ -1,6 +1,12 @@
 import tkinter as tk
 import customtkinter as ctk
 import pickle
+import sys
+
+import pygame
+from PIL import Image
+
+from objects.car import Car
 
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("blue")
@@ -10,6 +16,9 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         super().__init__(parent)
 
         self.configuration = {}
+
+        # simulation settings
+        self.simulation_started = False
 
         self.controller = controller # Main tkinter page
 
@@ -58,6 +67,17 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         self.bottom_hpane.add(self.graph_frame, minsize=200, stretch="always")
 
         self.main_vpane.add(self.bottom_hpane, minsize=150, stretch="always")
+
+        self.GAME_WIDTH = 800
+        self.GAME_HEIGHT = 600
+        self.cars_west = []
+        self.cars_east = []
+        self.cars_north = []
+        self.cars_south = []
+        self.car_spacing = 10  # pixels between cars
+        self.current_green_direction = 'W'  # Which direction has green light (W, E, N, S)
+        self.cars_per_green = 10  # How many cars can pass during one green light
+        self.moving_cars = []
 
 
     # TOOLBAR
@@ -130,24 +150,241 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         parent.grid_columnconfigure(0, weight=1)
 
         # edit here later for changing traffic junction name
-        tj_label = ctk.CTkLabel(
+        tk_label = ctk.CTkLabel(
             parent,
             text="Traffic Junction #1",
             font=self.subheader_font,
             text_color=self.text_color
         )
-        tj_label.grid(row=0, column=0, sticky="w", padx=10, pady=(5,0))
+        tk_label.grid(row=0, column=0, sticky="w", padx=10, pady=(5,0))
 
         # edit here later for junction simulator
-        junction_placeholder = ctk.CTkLabel(
+        self.junction = ctk.CTkLabel(
             parent,
-            text="[Traffic Junction Graphic Placeholder]",
+            text="",
             fg_color="#C2FFC2",
             text_color="#000000",
             font=self.normal_font
         )
-        junction_placeholder.grid(row=1, column=0, sticky="nsew", padx=10, pady=5)
+        self.junction.grid(row=1, column=0, sticky="nsew", padx=10, pady=5)
+        self.colour = 0
+        # self.show_simulation()
 
+    def configure_simulation(self):
+        conf = self.make_config()
+        count = 0
+        for _ in range(int(conf["Eastbound flow"]["East"])):
+            self.cars_east.append(Car(x=200 - count * (118 + self.car_spacing), y=210, width=self.GAME_WIDTH, height=self.GAME_HEIGHT, direction='E', destination='E'))
+            count += 1
+        for _ in range(int(conf["Eastbound flow"]["North"])):
+            self.cars_east.append(Car(x=200 - count * (118 + self.car_spacing), y=210, width=self.GAME_WIDTH, height=self.GAME_HEIGHT, direction='E', destination='N'))
+            count += 1
+        for _ in range(int(conf["Eastbound flow"]["South"])):
+            self.cars_east.append(Car(x=200 - count * (118 + self.car_spacing), y=210, width=self.GAME_WIDTH, height=self.GAME_HEIGHT, direction='E', destination='S'))
+            count += 1
+        
+        count = 0
+        for _ in range(int(conf["Westbound flow"]["South"])):
+            self.cars_west.append(Car(x=600 + count * (118 + self.car_spacing), y=350, width=self.GAME_WIDTH, height=self.GAME_HEIGHT,direction='W', destination='S'))
+            count += 1
+        for _ in range(int(conf["Westbound flow"]["North"])):
+            self.cars_west.append(Car(x=600 + count * (118 + self.car_spacing), y=350, width=self.GAME_WIDTH, height=self.GAME_HEIGHT,direction='W', destination='N'))
+            count += 1
+        for _ in range(int(conf["Westbound flow"]["West"])):
+            self.cars_west.append(Car(x=600 + count * (118 + self.car_spacing), y=350, width=self.GAME_WIDTH, height=self.GAME_HEIGHT,direction='W', destination='W'))
+            count += 1
+
+        count = 0
+        for _ in range(int(conf["Southbound flow"]["West"])):
+            self.cars_south.append(Car(x=420, y=100 - count * (72 + self.car_spacing), width=self.GAME_WIDTH, height=self.GAME_HEIGHT, direction='S', destination='W'))
+            count += 1
+        for _ in range(int(conf["Southbound flow"]["South"])):
+            self.cars_south.append(Car(x=420, y=100 - count * (72 + self.car_spacing), width=self.GAME_WIDTH, height=self.GAME_HEIGHT, direction='S', destination='S'))
+            count += 1
+        for _ in range(int(conf["Southbound flow"]["East"])):
+            self.cars_south.append(Car(x=420, y=100 - count * (72 + self.car_spacing), width=self.GAME_WIDTH, height=self.GAME_HEIGHT, direction='S', destination='E'))
+            count += 1
+          
+        count = 0
+        for _ in range(int(conf["Northbound flow"]["North"])):
+            self.cars_north.append(Car(x=310, y=460 + count * (72 + self.car_spacing), width=self.GAME_WIDTH, height=self.GAME_HEIGHT, direction='N', destination='N'))
+            count += 1
+        for _ in range(int(conf["Northbound flow"]["West"])):
+            self.cars_north.append(Car(x=310, y=460 + count * (72 + self.car_spacing), width=self.GAME_WIDTH, height=self.GAME_HEIGHT, direction='N', destination='W'))
+            count += 1
+        for _ in range(int(conf["Northbound flow"]["East"])):
+            self.cars_north.append(Car(x=310, y=460 + count * (72 + self.car_spacing), width=self.GAME_WIDTH, height=self.GAME_HEIGHT, direction='N', destination='E'))
+            count += 1
+
+    def show_simulation(self):
+        # Get frame dimensions for scaling
+        frame_width = self.junction.winfo_width()
+        frame_height = self.junction.winfo_height()
+        
+        # Create fixed-size surface
+        pygame_screen = pygame.Surface((self.GAME_WIDTH, self.GAME_HEIGHT))
+        
+        try:
+            # Load and scale background image
+            background = pygame.image.load("assets/junction.png")
+            background = pygame.transform.scale(background, (self.GAME_WIDTH, self.GAME_HEIGHT))
+            pygame_screen.blit(background, (0, 0))
+            
+            # Calculate line dimensions using fixed size
+            line_thickness = 10
+            extension_ratio_x = 0.17
+            extension_ratio_y = 0.25
+            center_x = self.GAME_WIDTH / 2
+            center_y = self.GAME_HEIGHT / 2
+            
+            # Calculate line lengths
+            line_length_x = self.GAME_WIDTH * extension_ratio_x
+            line_length_y = self.GAME_HEIGHT * extension_ratio_y
+            
+            # Calculate start and end points for horizontal line
+            h_start_x = center_x - line_length_x
+            h_end_x = center_x + line_length_x
+            h_y = center_y
+            
+            # Horizontal traffic dividers
+            pygame.draw.line(
+                pygame_screen,
+                (255, 255, 255),
+                (0, h_y),
+                (h_start_x, h_y),
+                line_thickness
+            )
+            pygame.draw.line(
+                pygame_screen,
+                (255, 255, 255),
+                (h_end_x, h_y),
+                (self.GAME_WIDTH, h_y),
+                line_thickness
+            )
+
+            # Calculate start and end points for vertical traffic dividers
+            v_start_y = center_y - line_length_y
+            v_end_y = center_y + line_length_y
+            v_x = center_x
+            
+            # Vertical traffic dividers
+            pygame.draw.line(
+                pygame_screen,
+                (255, 255, 255),
+                (v_x, 0),
+                (v_x, v_start_y),
+                line_thickness
+            )
+            pygame.draw.line(
+                pygame_screen,
+                (255, 255, 255),
+                (v_x, v_end_y),
+                (v_x, self.GAME_HEIGHT),
+                line_thickness
+            )
+            
+            # Stop lines for horizontal traffic dividers
+            pygame.draw.line(
+                pygame_screen,
+                (255, 255, 255),
+                (h_start_x + line_thickness // 2, v_start_y + 0.02 * self.GAME_HEIGHT),
+                (h_start_x + line_thickness // 2, v_end_y  - 0.02 * self.GAME_HEIGHT),
+                line_thickness
+            )
+            pygame.draw.line(
+                pygame_screen,
+                (255, 255, 255),
+                (h_end_x, v_start_y + 0.02 * self.GAME_HEIGHT),
+                (h_end_x, v_end_y - 0.02 * self.GAME_HEIGHT),
+                line_thickness
+            )
+            # Stop lines for vertical traffic dividers
+            pygame.draw.line(
+                pygame_screen,
+                (255, 255, 255),
+                (h_start_x + 0.035 * self.GAME_WIDTH, v_start_y),
+                (h_end_x - 0.035 * self.GAME_WIDTH, v_start_y),
+                line_thickness
+            )
+            pygame.draw.line(
+                pygame_screen,
+                (255, 255, 255),
+                (h_start_x  + 0.035 * self.GAME_WIDTH, v_end_y),
+                (h_end_x - 0.035 * self.GAME_WIDTH, v_end_y),
+                line_thickness
+            )
+
+            for car in self.cars_west[:min(self.cars_per_green, len(self.cars_west))]:
+                car.draw(pygame_screen)
+            for car in self.cars_east[:min(self.cars_per_green, len(self.cars_east))]:
+                car.draw(pygame_screen)
+            for car in self.cars_north[:min(self.cars_per_green, len(self.cars_north))]:
+                car.draw(pygame_screen)
+            for car in self.cars_south[:min(self.cars_per_green, len(self.cars_south))]:
+                car.draw(pygame_screen)
+            
+            if not self.moving_cars:
+                print("No moving cars")
+                print(self.current_green_direction)
+                if self.current_green_direction == 'W':
+                    num_cars = min(self.cars_per_green, len(self.cars_west))
+                    for car in self.cars_west[:num_cars]:
+                        self.moving_cars.append(car)
+                        self.cars_west.remove(car)
+                    for car in self.cars_west:
+                        car.move(- ((num_cars - 1) * (118 + self.car_spacing)), 0)
+                elif self.current_green_direction == 'E':
+                    num_cars = min(self.cars_per_green, len(self.cars_east))
+                    for car in self.cars_east[:num_cars]:
+                        self.moving_cars.append(car)
+                        self.cars_east.remove(car)
+                    for car in self.cars_east:
+                        car.move((num_cars - 1) * (118 + self.car_spacing), 0)
+                elif self.current_green_direction == 'S':
+                    num_cars = min(self.cars_per_green, len(self.cars_south))
+                    for car in self.cars_south[:num_cars]:
+                        self.moving_cars.append(car)
+                        self.cars_south.remove(car)
+                    for car in self.cars_south:
+                        car.move(0, (num_cars - 1) * (72 + self.car_spacing))
+                elif self.current_green_direction == 'N':
+                    num_cars = min(self.cars_per_green, len(self.cars_north))
+                    for car in self.cars_north[:num_cars]:
+                        self.moving_cars.append(car)
+                        self.cars_north.remove(car)
+                    for car in self.cars_north:
+                        car.move(0, -((num_cars - 1) * (72 + self.car_spacing)))
+                for car in self.moving_cars:
+                    print(car.direction, car.destination)
+            else:
+                for car in self.moving_cars:
+                    car.go_destination()
+                    car.draw(pygame_screen)
+                    if car.out_of_bounds():
+                        self.moving_cars.remove(car)
+
+                direction_order = ['W', 'N', 'E', 'S']
+                current_index = direction_order.index(self.current_green_direction)
+                self.current_green_direction = direction_order[(current_index + 1) % 4]
+        except Exception as e:
+            print(e)
+            # Fallback if image loading fails
+            pygame_screen.fill((255, 255, 255))  # White background
+        
+        
+        pygame_image = pygame.surfarray.array3d(pygame_screen)
+        pygame_image = pygame_image.swapaxes(0, 1)
+        pygame_image = ctk.CTkImage(Image.fromarray(pygame_image), size=(frame_width, frame_height))
+        
+        self.junction.configure(image=pygame_image)
+        
+        speed = int(20/float(self.sim_speed_var.get().split("x")[1]))
+        
+        if self.simulation_started:
+            try:
+                self.after(speed, self.show_simulation)
+            except:      
+                sys.exit()
     
     # TOP RIGHT MAIN PANE (PARAMS)
 
@@ -486,9 +723,26 @@ class TrafficSimulatorUI(ctk.CTkFrame):
 
     def run_simulation(self):
         print("clicked Run Simulation")
+        self.configure_simulation()
+        self.simulation_started = True
+        self.show_simulation()
 
     def stop_simulation(self):
         print("clicked Stop Simulation")
+        self.simulation_started = False
+    
+    def make_config(self):
+        config_file = {}
+        for key in self.configuration:
+            if isinstance(self.configuration[key], dict):
+                config_file[key] = {}
+                for subkey in self.configuration[key]:
+                    config_file[key][subkey] = self.configuration[key][subkey].get()
+                    # print(f"{key} - {subkey}: {self.configuration[key][subkey].get()}")
+            else:
+                config_file[key] = self.configuration[key].get()
+                # print(f"{key}: {self.configuration[key].get()}")
+        return config_file
 
     def save_parameters(self):
         print("clicked Save Parameter Settings")

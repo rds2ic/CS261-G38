@@ -32,7 +32,10 @@ class TrafficSimulatorApp(ctk.CTk):
         self.show_page("TrafficSimulatorUI")
     
     def show_page(self, page):
-        self.pages[page].tkraise()
+        try:
+            self.pages[page].tkraise()
+        except:
+            print("Error")
 
 if __name__ == "__main__":
     app = TrafficSimulatorApp()
