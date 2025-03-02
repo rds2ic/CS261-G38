@@ -6,7 +6,7 @@ if __name__ == '__main__':
     # Create a Junction instance with the given traffic flows.
     # Each tuple is (straight, right, left) vehicles per hour.
     junction = (JunctionBuilder()
-            .set_traffic((200, 50, 50), (150, 50, 50), (50, 50, 50), (50, 25, 25))
+            .set_traffic(north_traffic=(200, 50, 50), south_traffic=(150, 50, 50), east_traffic=(50, 50, 50), west_traffic=(50, 25, 25))
             .build())
 
     # Create a Simulation instance for 1 hour (3600 seconds)
