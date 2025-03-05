@@ -37,9 +37,9 @@ class TrafficCollectionUI(ctk.CTkFrame):
         # Configure grid for tool bar
         for col in range(6):
             toolbar.grid_columnconfigure(col, weight=0)
-        toolbar.grid_columnconfigure(1, weight=1)
-        toolbar.grid_columnconfigure(3, weight=1)
-        toolbar.grid_columnconfigure(5, weight=1)
+            toolbar.grid_columnconfigure(1, weight=1)
+            toolbar.grid_columnconfigure(3, weight=1)
+            toolbar.grid_columnconfigure(5, weight=1)
 
         # Title
         title = ctk.CTkLabel(

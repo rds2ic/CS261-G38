@@ -163,7 +163,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         # edit here later for changing traffic junction name
         tk_label = ctk.CTkLabel(
             parent,
-            text="Traffic Junction #1",
+            text="Traffic Junction",
             font=self.subheader_font,
             text_color=self.text_color
         )
