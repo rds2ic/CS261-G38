@@ -4,6 +4,10 @@ import pickle
 import sys
 import os
 
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 # add the src directory to the system path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -700,16 +704,32 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         dir_menu.grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
         # edit this later for displaying the graph
-        graph_placeholder = ctk.CTkLabel(
-            main_frame,
-            text="[Graph Placeholder]",
-            font=self.normal_font,
-            text_color="#000000",
-            fg_color="#FFFFFF",
-            corner_radius=5
-        )
-        graph_placeholder.grid(row=1, column=0, sticky="nsew", padx=10, pady=5)
+        # graph_placeholder = ctk.CTkLabel(
+        #     main_frame,
+        #     text="[Graph Placeholder]",
+        #     font=self.normal_font,
+        #     text_color="#000000",
+        #     fg_color="#FFFFFF",
+        #     corner_radius=5
+        # )
+        # graph_placeholder.grid(row=1, column=0, sticky="nsew", padx=10, pady=5)
 
+        # Generate random data for the line plot
+        x_data = np.arange(0, 60)  # Generate x-axis data from 0 to 120 seconds
+        y_data = np.random.randint(0, 26, size=60)  # Generate 121 random data points for the y-axis
+
+        # Create the line plot graph using matplotlib
+        fig, ax = plt.subplots(figsize=(3, 1))
+        ax.plot(x_data, y_data, color="red")
+        ax.set_xlabel("Time [sec]")
+        ax.set_xlim([0, 60])  # Ensure the x-axis shows up to 120 seconds
+        ax.set_ylim([0, 30])
+
+        # Integrate the plot into the Tkinter interface
+        canvas = FigureCanvasTkAgg(fig, master=main_frame)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=1, column=0, sticky="nsew", padx=10, pady=5)
+        
         # save data and traffic button
         save_btn = ctk.CTkButton(
             main_frame,
