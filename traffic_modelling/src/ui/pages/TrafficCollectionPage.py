@@ -117,7 +117,7 @@ class TrafficCollectionUI(ctk.CTkFrame):
         self._add_junction_frame("Traffic Junction #1", "#FF0000", 1)
         self._add_junction_frame("Traffic Junction #2", "#FFD700", 2)
         self._add_junction_frame("Traffic Junction #3", "#00CC00", 3)
-        self._add_junction_frame("Traffic Junction #4", "#0f5e21", 4)
+        self._add_junction_frame("Traffic Junction #4", "#b5e2ff", 4)
 
     def _add_junction_frame(self, title, color, junction_id):
         frame = ctk.CTkFrame(self.scroll_frame, fg_color="white", corner_radius=10, width=400)
@@ -153,7 +153,7 @@ class TrafficCollectionUI(ctk.CTkFrame):
 
         # Image section
         try:
-            # Dynamically load the image for each junction
+            # dynamically load the image for each junction
             image_path = f"assets/junction_placeholder.png"  # change this path to "assets/junction_{junction_id}.png" when junction id is finalised for all
             image = ctk.CTkImage(Image.open(image_path), size=(300, 300))
             image_label = ctk.CTkLabel(frame, image=image, text="")

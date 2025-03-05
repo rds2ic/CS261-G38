@@ -720,7 +720,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
 
         # create the line plot graph using matplotlib
         fig, ax = plt.subplots(figsize=(3, 1))
-        ax.plot(x_data, y_data, color="red")
+        ax.plot(x_data, y_data, color="blue")
         ax.set_xlabel("Time [sec]")
         ax.set_xlim([0, 60]) # x-axis shows 0-120 sec
         ax.set_ylim([0, 30]) # y-axis shows 0-30 sec
