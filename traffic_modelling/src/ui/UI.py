@@ -1,5 +1,12 @@
 import tkinter as tk
 import customtkinter as ctk
+
+import sys
+import os
+
+# add the src directory to the system path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from pages.TrafficSimulatorPage import TrafficSimulatorUI
 from pages.TrafficCollectionPage import TrafficCollectionUI
 from pages.DataAnalysisPage import DataAnalysisUI

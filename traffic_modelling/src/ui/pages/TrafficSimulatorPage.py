@@ -2,11 +2,18 @@ import tkinter as tk
 import customtkinter as ctk
 import pickle
 import sys
+import os
+
+# add the src directory to the system path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import pygame
 from PIL import Image
 
 from objects.car import Car
+from models.Junction import Junction, JunctionBuilder
+from models.Vehicle import Vehicle
+from simulation import Simulation, StatsCollector
 
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("blue")
@@ -618,33 +625,32 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         )
         data_label.grid(row=0, column=0, columnspan=3, pady=(5,5))
 
-        avg_lbl = ctk.CTkLabel(
+        self.avg_lbl = ctk.CTkLabel(
             parent,
             text="Average Wait Time:\nNorthbound: XX sec\nEastbound: XX sec\nSouthbound: XX sec\nWestbound: XX sec",
             font=self.small_font,
             justify="left",
             text_color=self.text_color
         )
-        avg_lbl.grid(row=1, column=0, sticky="nw", padx=10, pady=5)
+        self.avg_lbl.grid(row=1, column=0, sticky="nw", padx=10, pady=5)
 
-        max_lbl = ctk.CTkLabel(
+        self.max_lbl = ctk.CTkLabel(
             parent,
             text="Maximum Wait Time:\nNorthbound: XX sec\nEastbound: XX sec\nSouthbound: XX sec\nWestbound: XX sec",
             font=self.small_font,
             justify="left",
             text_color=self.text_color
         )
-        max_lbl.grid(row=1, column=1, sticky="nw", padx=10, pady=5)
+        self.max_lbl.grid(row=1, column=1, sticky="nw", padx=10, pady=5)
 
-        queue_lbl = ctk.CTkLabel(
+        self.queue_lbl = ctk.CTkLabel(
             parent,
             text="Maximum Queue Length [cars]:\nNorthbound: XX\nEastbound: XX\nSouthbound: XX\nWestbound: XX",
             font=self.small_font,
             justify="left",
             text_color=self.text_color
         )
-        queue_lbl.grid(row=1, column=2, sticky="nw", padx=10, pady=5)
-
+        self.queue_lbl.grid(row=1, column=2, sticky="nw", padx=10, pady=5)
 
     #  bottom right main pane (graph)
 
@@ -727,9 +733,78 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         self.simulation_started = True
         self.show_simulation()
 
+        # create a junction instance with the configured traffic flows
+        conf = self.make_config()
+        junction = (JunctionBuilder()
+                    .set_traffic(
+                        north_traffic=(
+                            int(conf["Northbound flow"]["North"]),
+                            int(conf["Northbound flow"]["East"]),
+                            int(conf["Northbound flow"]["West"])
+                        ),
+                        south_traffic=(
+                            int(conf["Southbound flow"]["South"]),
+                            int(conf["Southbound flow"]["East"]),
+                            int(conf["Southbound flow"]["West"])
+                        ),
+                        east_traffic=(
+                            int(conf["Eastbound flow"]["East"]),
+                            int(conf["Eastbound flow"]["North"]),
+                            int(conf["Eastbound flow"]["South"])
+                        ),
+                        west_traffic=(
+                            int(conf["Westbound flow"]["West"]),
+                            int(conf["Westbound flow"]["North"]),
+                            int(conf["Westbound flow"]["South"])
+                        )
+                    )
+                    .build())
+
+        # run the simulation for a default duration (here, 3600sec which is 60min)
+        self.sim = Simulation(junction, simulation_duration=3600)
+        self.sim.runSimulation()
+
+        # initialise StatsCollector
+        self.stats = StatsCollector(self.sim)
+
     def stop_simulation(self):
         print("clicked Stop Simulation")
         self.simulation_started = False
+        
+        # calculate and display statistics when the simulation is stopped
+        avg_wait = self.stats.calculateAverageWaitTime()
+        max_wait = self.stats.calculateMaxWaitTimes()
+        max_queues = self.stats.getMaxQueueLengths()
+
+        # update the statistics in the data pane
+        self.update_data_collected(avg_wait, max_wait, max_queues)
+
+    def update_data_collected(self, avg_wait, max_wait, max_queues):
+        avg_text = (
+            f"Average Wait Time:\n"
+            f"Northbound: {avg_wait['north']} sec\n"
+            f"Eastbound: {avg_wait['east']} sec\n"
+            f"Southbound: {avg_wait['south']} sec\n"
+            f"Westbound: {avg_wait['west']} sec"
+        )
+        max_text = (
+            f"Maximum Wait Time:\n"
+            f"Northbound: {max_wait['north']} sec\n"
+            f"Eastbound: {max_wait['east']} sec\n"
+            f"Southbound: {max_wait['south']} sec\n"
+            f"Westbound: {max_wait['west']} sec"
+        )
+        queue_text = (
+            f"Maximum Queue Length [cars]:\n"
+            f"Northbound: {max_queues['north']}\n"
+            f"Eastbound: {max_queues['east']}\n"
+            f"Southbound: {max_queues['south']}\n"
+            f"Westbound: {max_queues['west']}"
+        )
+
+        self.avg_lbl.configure(text=avg_text)
+        self.max_lbl.configure(text=max_text)
+        self.queue_lbl.configure(text=queue_text)
     
     def make_config(self):
         config_file = {}
@@ -738,10 +813,8 @@ class TrafficSimulatorUI(ctk.CTkFrame):
                 config_file[key] = {}
                 for subkey in self.configuration[key]:
                     config_file[key][subkey] = self.configuration[key][subkey].get()
-                    # print(f"{key} - {subkey}: {self.configuration[key][subkey].get()}")
             else:
                 config_file[key] = self.configuration[key].get()
-                # print(f"{key}: {self.configuration[key].get()}")
         return config_file
 
     def save_parameters(self):
