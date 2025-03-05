@@ -89,6 +89,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         self.current_green_direction = 'W'  # Which direction has green light (W, E, N, S)
         self.cars_per_green = 10  # How many cars can pass during one green light
         self.moving_cars = []
+        self.can_reset = False
 
 
     # TOOLBAR
@@ -182,8 +183,11 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         # self.show_simulation()
 
     def configure_simulation(self):
+        self.can_reset = True
+        self.current_green_direction = 'W'
         conf = self.make_config()
         count = 0
+        self.cars_east = []
         for _ in range(int(conf["Eastbound flow"]["East"])):
             self.cars_east.append(Car(x=200 - count * (118 + self.car_spacing), y=210, width=self.GAME_WIDTH, height=self.GAME_HEIGHT, direction='E', destination='E'))
             count += 1
@@ -195,6 +199,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
             count += 1
         
         count = 0
+        self.cars_west = []
         for _ in range(int(conf["Westbound flow"]["South"])):
             self.cars_west.append(Car(x=600 + count * (118 + self.car_spacing), y=350, width=self.GAME_WIDTH, height=self.GAME_HEIGHT,direction='W', destination='S'))
             count += 1
@@ -206,6 +211,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
             count += 1
 
         count = 0
+        self.cars_south = []
         for _ in range(int(conf["Southbound flow"]["West"])):
             self.cars_south.append(Car(x=420, y=100 - count * (72 + self.car_spacing), width=self.GAME_WIDTH, height=self.GAME_HEIGHT, direction='S', destination='W'))
             count += 1
@@ -217,6 +223,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
             count += 1
           
         count = 0
+        self.cars_north = []
         for _ in range(int(conf["Northbound flow"]["North"])):
             self.cars_north.append(Car(x=310, y=460 + count * (72 + self.car_spacing), width=self.GAME_WIDTH, height=self.GAME_HEIGHT, direction='N', destination='N'))
             count += 1
@@ -226,6 +233,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         for _ in range(int(conf["Northbound flow"]["East"])):
             self.cars_north.append(Car(x=310, y=460 + count * (72 + self.car_spacing), width=self.GAME_WIDTH, height=self.GAME_HEIGHT, direction='N', destination='E'))
             count += 1
+        self.moving_cars = []
 
     def show_simulation(self):
         # Get frame dimensions for scaling
@@ -240,7 +248,34 @@ class TrafficSimulatorUI(ctk.CTkFrame):
             background = pygame.image.load("assets/junction.png")
             background = pygame.transform.scale(background, (self.GAME_WIDTH, self.GAME_HEIGHT))
             pygame_screen.blit(background, (0, 0))
+
+            # Drawing badges
+            conf = self.make_config()
+            lanes_badge = pygame.image.load("assets/lane-badge.png")
+            scale_factor = min(self.GAME_WIDTH / 8000, self.GAME_HEIGHT / 6000)
+            new_width = int(666 * scale_factor)
+            new_height = int(666 * scale_factor)
+            lanes_badge = pygame.transform.scale(lanes_badge, (new_width, new_height))
+            pygame_screen.blit(lanes_badge, (150, 100))
+
+            pygame.font.init()
+            my_font = pygame.font.SysFont('Comic Sans MS', 30)
+            text_surface = my_font.render(conf['Number of Lanes'], False, (255, 255, 255))
+            pygame_screen.blit(text_surface, (220,130))
+
+            if conf['Left Turn Lane'] == 'Yes':
+                left_turn_badge = pygame.image.load("assets/left-turn-lane-badge.png")
+                new_width = int(355 * scale_factor * 2)
+                new_height = int(355 * scale_factor * 2)
+                left_turn_badge = pygame.transform.scale(left_turn_badge, (new_width, new_height))
+                pygame_screen.blit(left_turn_badge, (125, 435))
             
+            if conf['Pedestrian Crossing North'] == 'Yes' or conf['Pedestrian Crossing East'] == 'Yes' or conf['Pedestrian Crossing South'] == 'Yes' or conf['Pedestrian Crossing West'] == 'Yes':
+                pedestrian_badge = pygame.image.load('assets/pedestrian-street-badge.png')
+                new_width = int(243 * scale_factor * 1.5)
+                new_height = int(249 * scale_factor * 1.5)
+                pedestrian_badge = pygame.transform.scale(pedestrian_badge, (new_width, new_height))
+                pygame_screen.blit(pedestrian_badge, (225, 450))
             # Calculate line dimensions using fixed size
             line_thickness = 10
             extension_ratio_x = 0.17
@@ -335,8 +370,6 @@ class TrafficSimulatorUI(ctk.CTkFrame):
                 car.draw(pygame_screen)
             
             if not self.moving_cars:
-                print("No moving cars")
-                print(self.current_green_direction)
                 if self.current_green_direction == 'W':
                     num_cars = min(self.cars_per_green, len(self.cars_west))
                     for car in self.cars_west[:num_cars]:
@@ -365,8 +398,6 @@ class TrafficSimulatorUI(ctk.CTkFrame):
                         self.cars_north.remove(car)
                     for car in self.cars_north:
                         car.move(0, -((num_cars - 1) * (72 + self.car_spacing)))
-                for car in self.moving_cars:
-                    print(car.direction, car.destination)
             else:
                 for car in self.moving_cars:
                     car.go_destination()
@@ -749,9 +780,15 @@ class TrafficSimulatorUI(ctk.CTkFrame):
 
     def run_simulation(self):
         print("clicked Run Simulation")
-        self.configure_simulation()
-        self.simulation_started = True
-        self.show_simulation()
+        if not self.simulation_started:
+            self.configure_simulation()
+            self.simulation_started = True
+            self.show_simulation()
+        elif self.simulation_started and self.can_reset:
+            self.simulation_started = False
+            self.configure_simulation()
+            self.simulation_started = True
+            self.show_simulation()
 
         # create a junction instance with the configured traffic flows
         conf = self.make_config()
