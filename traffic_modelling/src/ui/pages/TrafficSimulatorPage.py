@@ -36,8 +36,8 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         # font size and colours
         self.header_font = ctk.CTkFont(size=16, weight="bold")
         self.subheader_font = ctk.CTkFont(size=14, weight="bold")
-        self.normal_font = ctk.CTkFont(size=13)
-        self.small_font = ctk.CTkFont(size=11)
+        self.normal_font = ctk.CTkFont(size=13, weight="bold")
+        self.small_font = ctk.CTkFont(size=12)
         self.text_color = "black"
 
         # PANEL SETTINGS

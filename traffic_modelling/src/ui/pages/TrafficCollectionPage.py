@@ -3,6 +3,7 @@ import tkinter.messagebox
 from typing import List
 import customtkinter as ctk
 from PIL import Image # pip3 install pillow
+import random
 
 ctk.set_appearance_mode("Light") # can be system, light or dark
 ctk.set_default_color_theme("blue") # can be blue, green or dark blue
@@ -176,24 +177,27 @@ class TrafficCollectionUI(ctk.CTkFrame):
         for i in range(3):
             stats_frame.grid_columnconfigure(i, weight=1)
 
-        self._add_stat_group(stats_frame, "Avg. Wait Time [s]", 0, junction_id)
-        self._add_stat_group(stats_frame, "Max Wait Time [s]", 1, junction_id)
-        self._add_stat_group(stats_frame, "Max Queue Len [cars]", 2, junction_id)
+        # Add rand stats for each direction
+        self._add_stat_group(stats_frame, "Avg. Wait Time [s]", 0, junction_id, 5, 30)
+        self._add_stat_group(stats_frame, "Max Wait Time [s]", 1, junction_id, 20, 60)
+        self._add_stat_group(stats_frame, "Max Queue Len [cars]", 2, junction_id, 1, 20)
 
-        # Overall score
+        # overall score (generate a score between 50%-100%)
+        overall_score = random.randint(50, 100)
         score_label = ctk.CTkLabel(
             frame,
-            text="Overall Score: XX%",
+            text=f"Overall Score: {overall_score}%",
             font=self.subheader_font,
             text_color=self.text_color
         )
         score_label.grid(row=5, column=0, pady=(5, 10))
         self.make_widget_button(score_label, junction_id)
 
-    def _add_stat_group(self, parent, title, column, junction_id):
+    def _add_stat_group(self, parent, title, column, junction_id, min_value=0, max_value=100):
         group = ctk.CTkFrame(parent, fg_color="#F0F0F0")
         group.grid(row=0, column=column, sticky="nsew", padx=2)
         self.make_widget_button(group, junction_id)
+
         title_label = ctk.CTkLabel(
             group,
             text=title,
@@ -202,10 +206,12 @@ class TrafficCollectionUI(ctk.CTkFrame):
         )
         title_label.pack(anchor="center")
         self.make_widget_button(title_label, junction_id)
+
         for direction in ["N", "S", "E", "W"]:
+            rand_value = random.randint(min_value, max_value)
             direction_label = ctk.CTkLabel(
                 group,
-                text=f"{direction}: XX",
+                text=f"{direction}: {rand_value}",
                 font=self.small_font,
                 text_color=self.text_color
             )
