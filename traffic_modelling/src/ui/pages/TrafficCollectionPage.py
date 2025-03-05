@@ -153,7 +153,9 @@ class TrafficCollectionUI(ctk.CTkFrame):
 
         # Image section
         try:
-            image = ctk.CTkImage(Image.open("test_junction.png"), size=(300, 300))
+            # Dynamically load the image for each junction
+            image_path = f"assets/junction_placeholder.png"  # change this path to "assets/junction_{junction_id}.png" when junction id is finalised for all
+            image = ctk.CTkImage(Image.open(image_path), size=(300, 300))
             image_label = ctk.CTkLabel(frame, image=image, text="")
             image_label.grid(row=2, column=0, pady=10)
             self.make_widget_button(image_label, junction_id)
