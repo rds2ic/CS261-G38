@@ -714,18 +714,18 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         # )
         # graph_placeholder.grid(row=1, column=0, sticky="nsew", padx=10, pady=5)
 
-        # Generate random data for the line plot
-        x_data = np.arange(0, 60)  # Generate x-axis data from 0 to 120 seconds
-        y_data = np.random.randint(0, 26, size=60)  # Generate 121 random data points for the y-axis
+        # generate random data for the line plot
+        x_data = np.arange(0, 60) # generate x-axis data from 0 - 60 seconds
+        y_data = np.random.randint(0, 26, size=60) # Generate 60 data points for y-axis
 
-        # Create the line plot graph using matplotlib
+        # create the line plot graph using matplotlib
         fig, ax = plt.subplots(figsize=(3, 1))
         ax.plot(x_data, y_data, color="red")
         ax.set_xlabel("Time [sec]")
-        ax.set_xlim([0, 60])  # Ensure the x-axis shows up to 120 seconds
-        ax.set_ylim([0, 30])
+        ax.set_xlim([0, 60]) # x-axis shows 0-120 sec
+        ax.set_ylim([0, 30]) # y-axis shows 0-30 sec
 
-        # Integrate the plot into the Tkinter interface
+        # integrate the plot into the tkinter interface
         canvas = FigureCanvasTkAgg(fig, master=main_frame)
         canvas.draw()
         canvas.get_tk_widget().grid(row=1, column=0, sticky="nsew", padx=10, pady=5)
