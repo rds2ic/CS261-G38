@@ -1,15 +1,23 @@
 from models import Junction, Vehicle
+import random
 
 
 class Simulation:
     def __init__(self, junction : Junction, simulation_duration : int = 3600):
         self.time = 0           # Time in seconds
-        self.cycle_length = 10  # Length of a cycle in seconds
+        self.cycle_length = junction.cycle_length  # Length of a cycle in seconds
         self.junction = junction # Junction config to be used
         self.simulation_duration = simulation_duration # Duration of the simulation in seconds
 
         # Queues for each approach and movement
         self.queues = {
+            'north': [],
+            'south': [],
+            'east': [],
+            'west': []
+        }
+            
+        self.left_turn_queues = {
             'north': [],
             'south': [],
             'east': [],
@@ -39,7 +47,7 @@ class Simulation:
             'east':  junction.east_traffic,
             'west':  junction.west_traffic
         }
-    
+      
     def runSimulation(self):
         # For each direction and turn, compute the deterministic arrival times
         # Formula for scheduling vehicles: arrival_time = (3600 / vehicles per hour)
@@ -83,9 +91,16 @@ class Simulation:
                     continue
 
                 while next_arrivals[direction] is not None and next_arrivals[direction] <= t:
-                    # Create a new vehicle
-                    vehicle = Vehicle(t, direction)
-                    self.queues[direction].append(vehicle)
+                    
+                    movements = ["left", "right","straight"]  
+                    movement = random.choice(movements)
+                    
+                    vehicle = Vehicle(t, direction, movement)
+                    
+                    if self.junction.left_turn_lane and vehicle.exit == "left":
+                        self.left_turn_queues[direction].append(vehicle)
+                    else:
+                        self.queues[direction].append(vehicle)
 
                     # Schedule next arrival
                     next_arrivals[direction] += interval
@@ -102,7 +117,7 @@ class Simulation:
             else:
                 active_phase = ["east", "west"]
             
-            # Process the active phase
+            # Process the active phase (normal lanes)
             for direction in active_phase:
                 if self.queues[direction]:
                     vehicle = self.queues[direction][0]  
@@ -113,11 +128,12 @@ class Simulation:
                         reaction_time = gap_reaction_cost
 
                     if t >= last_exit_time[direction] + reaction_time:
-                        vehicle = self.queues[direction].pop(0)
+                        vehicle = self.queues[direction].pop(0)\
+                            
                         
-                        if vehicle.movement == "right":
+                        if vehicle.exit == "right":
                             cost = right_turn_cost
-                        elif vehicle.movement == "left":
+                        elif vehicle.exit == "left":
                             cost = left_turn_cost
                         else:
                             cost = 0
@@ -129,4 +145,25 @@ class Simulation:
                         wait_time = vehicle.getWaitTime()
                         self.wait_times[direction].append(wait_time)
                         
+                                
+            for direction in active_phase:
+                if self.junction.left_turn_lane and self.left_turn_queues[direction]:
+                    vehicle = self.left_turn_queues[direction][0]  
+                    
+                    if last_exit_time[direction] == 0:
+                        reaction_time = first_reaction_cost
+                    else:
+                        reaction_time = gap_reaction_cost
+
+                    if t >= last_exit_time[direction] + reaction_time:                    
+                        self.left_turn_queues[direction].pop(0)
                         
+                        cost = left_turn_cost *0.3
+                        
+                        exit_time = t + cost
+                        vehicle.setExit(exit_time)
+                        last_exit_time[direction] = exit_time #update the last_exit_time of the most recent vehicle
+
+                        wait_time = vehicle.getWaitTime()
+                        self.wait_times[direction].append(wait_time)
+
