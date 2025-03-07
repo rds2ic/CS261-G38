@@ -8,6 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+from pages.TrafficCollectionPage import TrafficCollectionUI
+
 # add the src directory to the system path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -276,6 +278,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
                 new_height = int(249 * scale_factor * 1.5)
                 pedestrian_badge = pygame.transform.scale(pedestrian_badge, (new_width, new_height))
                 pygame_screen.blit(pedestrian_badge, (225, 450))
+            
             # Calculate line dimensions using fixed size
             line_thickness = 10
             extension_ratio_x = 0.17
@@ -400,7 +403,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
                         car.move(0, -((num_cars - 1) * (72 + self.car_spacing)))
             else:
                 for car in self.moving_cars:
-                    car.go_destination()
+                    car.go_destination(speed=5*float(self.sim_speed_var.get().split("x")[1]))
                     car.draw(pygame_screen)
                     if car.out_of_bounds():
                         self.moving_cars.remove(car)
@@ -874,7 +877,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
                 config_file[key] = self.configuration[key].get()
         return config_file
 
-    def save_parameters(self):
+    def save_parameters(self, file_name="config_file.pkl"):
         print("clicked Save Parameter Settings")
         config_file = {}
         for key in self.configuration:
@@ -887,12 +890,12 @@ class TrafficSimulatorUI(ctk.CTkFrame):
                 config_file[key] = self.configuration[key].get()
                 # print(f"{key}: {self.configuration[key].get()}")
         print(config_file)
-        with (open("config_file.pkl", "wb")) as f:
+        with (open(file_name, "wb")) as f:
             pickle.dump(config_file, f)
 
-    def load_parameters(self):
+    def load_parameters(self, file_name="config_file.pkl"):
         print("clicked Load Parameter Settings")
-        with (open("config_file.pkl", "rb")) as f:
+        with (open(file_name, "rb")) as f:
             config_file = pickle.load(f)
             # print(self.configuration)
             for key in self.configuration:
@@ -904,6 +907,14 @@ class TrafficSimulatorUI(ctk.CTkFrame):
 
     def save_junction_data(self):
         print("clicked Save Traffic Junction and Collected Data")
+        if os.listdir('junctions'):
+            file_num = max([int(file.split('.pkl')[0].split('junction')[1]) for file in os.listdir('junctions')]) + 1
+        else:
+            file_num = 1
+        self.save_parameters(f"junctions/junction{file_num}")
+        self.controller.pages["TrafficCollectionUI"].destroy() 
+        self.controller.pages["TrafficCollectionUI"] = TrafficCollectionUI(self.controller.container, self.controller)
+        self.controller.pages["TrafficCollectionUI"].grid(row = 0, column = 0, sticky ="news")
 
 if __name__ == "__main__":
     app = ctk.CTk()

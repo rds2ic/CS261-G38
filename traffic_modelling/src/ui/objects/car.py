@@ -58,9 +58,9 @@ class Car:
         self.y += dy
         self.rect.topleft = (self.x, self.y)
     
-    def go_destination(self):
+    def go_destination(self, speed=5):
         """Handle car movement and turning based on current direction and destination"""
-        speed = 5 * self.width / self.height if self.direction in ['W', 'E'] else 5 * self.height / self.width
+        speed = speed * self.width / self.height if self.direction in ['W', 'E'] else speed * self.height / self.width
         
         if self.direction == 'W':
             if self.destination == 'N' and self.x < self.width//2 - self.rect[2] - 15:

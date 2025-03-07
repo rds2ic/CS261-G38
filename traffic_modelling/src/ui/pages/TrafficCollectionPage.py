@@ -4,6 +4,7 @@ from typing import List
 import customtkinter as ctk
 from PIL import Image # pip3 install pillow
 import random
+import os
 
 ctk.set_appearance_mode("Light") # can be system, light or dark
 ctk.set_default_color_theme("blue") # can be blue, green or dark blue
@@ -114,11 +115,14 @@ class TrafficCollectionUI(ctk.CTkFrame):
             fg_color="transparent"
         )
         self.scroll_frame.pack(fill="both", expand=True)
-
-        self._add_junction_frame("Traffic Junction #1", "#FF0000", 1)
-        self._add_junction_frame("Traffic Junction #2", "#FFD700", 2)
-        self._add_junction_frame("Traffic Junction #3", "#00CC00", 3)
-        self._add_junction_frame("Traffic Junction #4", "#b5e2ff", 4)
+        for file in os.listdir('junctions'):
+            file_num = int(file.split('.pkl')[0].split('junction')[1])
+            self._add_junction_frame(f"Traffic Junction {file_num}", "#FF0000", file_num)
+            pass
+        # self._add_junction_frame("Traffic Junction #1", "#FF0000", 1)
+        # self._add_junction_frame("Traffic Junction #2", "#FFD700", 2)
+        # self._add_junction_frame("Traffic Junction #3", "#00CC00", 3)
+        # self._add_junction_frame("Traffic Junction #4", "#b5e2ff", 4)
 
     def _add_junction_frame(self, title, color, junction_id):
         frame = ctk.CTkFrame(self.scroll_frame, fg_color="white", corner_radius=10, width=400)
@@ -239,7 +243,7 @@ class TrafficCollectionUI(ctk.CTkFrame):
         print("Comparing traffic junctions...")
     
     def junction_pressed(self, junctionid):
-        self.controller.show_page("TrafficSimulatorUI")
+        self.controller.show_page("TrafficSimulatorUI", params={'id': junctionid})
         print(f"Clicked junction {junctionid}")
 
 # For testing purposes

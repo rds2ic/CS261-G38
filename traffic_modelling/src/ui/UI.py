@@ -23,26 +23,30 @@ class TrafficSimulatorApp(ctk.CTk):
         self.geometry("1300x800")
         self.minsize(900, 600)
 
-        container = ctk.CTkFrame(self)  
-        container.pack(side = "top", fill = "both", expand = True) 
+        self.container = ctk.CTkFrame(self)  
+        self.container.pack(side = "top", fill = "both", expand = True) 
   
-        container.grid_rowconfigure(0, weight = 1)
-        container.grid_columnconfigure(0, weight = 1)
+        self.container.grid_rowconfigure(0, weight = 1)
+        self.container.grid_columnconfigure(0, weight = 1)
 
         self.pages = {}
         for key in PAGES:
             P = PAGES[key]
-            page = P(container, self)
+            page = P(self.container, self)
             self.pages[key] = page
             page.grid(row = 0, column = 0, sticky ="news")
 
         self.show_page("TrafficSimulatorUI")
     
-    def show_page(self, page):
+    def show_page(self, page, params=None):
         try:
             self.pages[page].tkraise()
-        except:
-            print("Error")
+            if params:
+                self.pages["TrafficSimulatorUI"].load_parameters(f"junctions/junction{params['id']}")
+            # if page == "TrafficCollectionUI":
+            #     self.pages["TrafficCollectionUI"].refresh()
+        except Exception as e:
+            print("Error: ", e)
 
 if __name__ == "__main__":
     app = TrafficSimulatorApp()
