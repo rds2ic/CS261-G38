@@ -43,8 +43,6 @@ class TrafficSimulatorApp(ctk.CTk):
             self.pages[page].tkraise()
             if params:
                 self.pages["TrafficSimulatorUI"].load_parameters(f"junctions/junction{params['id']}")
-            # if page == "TrafficCollectionUI":
-            #     self.pages["TrafficCollectionUI"].refresh()
         except Exception as e:
             print("Error: ", e)
 

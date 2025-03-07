@@ -3,7 +3,7 @@ import random
 
 
 class Simulation:
-    def __init__(self, junction : Junction, pedestrian_crossing : PedestrianCrossing, simulation_duration : int = 3600):
+    def __init__(self, junction : Junction, pedestrian_crossing : PedestrianCrossing = None, simulation_duration : int = 3600):
         self.time = 0           # Time in seconds
         self.cycle_length = junction.cycle_length  # Length of a cycle in seconds
         self.junction = junction # Junction config to be used
@@ -113,14 +113,15 @@ class Simulation:
                 self.max_queue_lengths[direction] = max(self.max_queue_lengths[direction], len(self.queues[direction]))
 
             # Pedestrian crossing request Every x Seconds
-            if t % self.pedestrian_crossing.get_request_interval() == 0:
-                self.pedestrian_crossing.pushButton()
-            
-            self.pedestrian_crossing.update(t)
-            
-            # Block all traffic during pedestrian crossing
-            if self.pedestrian_crossing.is_active():
-                continue 
+            if self.pedestrian_crossing != None:
+                if t % self.pedestrian_crossing.get_request_interval() == 0:
+                    self.pedestrian_crossing.pushButton()
+                
+                self.pedestrian_crossing.update(t)
+                
+                # Block all traffic during pedestrian crossing
+                if self.pedestrian_crossing.is_active():
+                    continue 
             
             phase_time = t % self.cycle_length
             if phase_time < (self.cycle_length / 2):
