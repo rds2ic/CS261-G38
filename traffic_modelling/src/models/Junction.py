@@ -37,6 +37,11 @@ class JunctionBuilder:
         self.cycle_length = 10
 
     def set_traffic(self, north_traffic, south_traffic, east_traffic, west_traffic):
+        for traffic in [north_traffic, south_traffic, east_traffic, west_traffic]:
+            if any(value < 0 for value in traffic):
+                raise ValueError("Traffic values must be non-negative")
+            if any(value > 10000 for value in traffic):  # assume 10000 as a upper limit (realistically)
+                raise ValueError("Traffic values exceed realistic limits")
         self.north_traffic = north_traffic
         self.south_traffic = south_traffic
         self.east_traffic = east_traffic
@@ -44,6 +49,8 @@ class JunctionBuilder:
         return self
 
     def set_lanes(self, lanes):
+        if any(lane < 1 for lane in lanes.values()):
+            raise ValueError("Number of lanes must be positive")
         self.lanes = lanes
         return self
 
@@ -64,6 +71,8 @@ class JunctionBuilder:
         return self
     
     def set_cycle_length(self, cycle_length):
+        if cycle_length <= 0:
+            raise ValueError("Cycle length must be positive")
         self.cycle_length = cycle_length
         return self
 
