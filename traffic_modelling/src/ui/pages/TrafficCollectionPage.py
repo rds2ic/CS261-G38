@@ -115,10 +115,30 @@ class TrafficCollectionUI(ctk.CTkFrame):
             fg_color="transparent"
         )
         self.scroll_frame.pack(fill="both", expand=True)
-        for file in os.listdir('junctions'):
+
+        #define a list of colors to cycle through for junctions
+        colors = ["#FF0000", "#FFD700", "#00CC00", "#b5e2ff", "#A020F0", "#FFC0CB"]
+
+        #assign colors dynamically and sort the junctions by number
+        for file in sorted(os.listdir('junctions'), key=lambda x: int(x.split('.pkl')[0].split('junction')[1])):
             file_num = int(file.split('.pkl')[0].split('junction')[1])
-            self._add_junction_frame(f"Traffic Junction {file_num}", "#FF0000", file_num)
-            pass
+            color = colors[(file_num - 1) % len(colors)]  # cycle through colors
+            self._add_junction_frame(f"Traffic Junction #{file_num}", color, file_num)
+
+    # def _build_junction_scroll_area(self):
+    #     container = ctk.CTkFrame(self, fg_color="transparent")
+    #     container.pack(fill="both", expand=True, padx=10, pady=10)
+
+    #     self.scroll_frame = ctk.CTkScrollableFrame(
+    #         container,
+    #         orientation="horizontal",
+    #         fg_color="transparent"
+    #     )
+    #     self.scroll_frame.pack(fill="both", expand=True)
+    #     for file in os.listdir('junctions'):
+    #         file_num = int(file.split('.pkl')[0].split('junction')[1])
+    #         self._add_junction_frame(f"Traffic Junction {file_num}", "#FF0000", file_num)
+    #         pass
         # self._add_junction_frame("Traffic Junction #1", "#FF0000", 1)
         # self._add_junction_frame("Traffic Junction #2", "#FFD700", 2)
         # self._add_junction_frame("Traffic Junction #3", "#00CC00", 3)

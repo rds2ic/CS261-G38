@@ -82,7 +82,7 @@ class DataAnalysisUI(ctk.CTkFrame):
 
         # different colours for each junction #
         junctions = np.array([1, 2, 3, 4, 5, 6])
-        colors = ["red", "yellow", "green", "blue", "purple", "pink"]
+        colors = ["#FF0000", "#FFD700", "#00CC00", "#b5e2ff", "#A020F0", "#FFC0CB"]
 
         # subplots
         fig, axes = plt.subplots(nrows=3, ncols=4, figsize=(12, 8))
