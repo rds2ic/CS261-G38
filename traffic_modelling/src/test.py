@@ -1,4 +1,4 @@
-from models import Junction, JunctionBuilder
+from models import Junction, JunctionBuilder, PedestrianCrossing
 from simulation import Simulation
 from simulation import StatsCollector
 
@@ -10,9 +10,12 @@ def run_simulation(north_traffic, south_traffic, east_traffic, west_traffic, lan
                 .set_lanes(lanes)
                 .set_left_turn_lane(left_turn_lane)
                 .build())
+        # Create a PedestrianCrossing instance which has crossings
+        # The crossings last 7 seconds and are requested every 60 seconds
+        pedestrian_crossing = PedestrianCrossing(7, 60)
 
         # Create a Simulation instance for 1 hour (3600 seconds)
-        sim = Simulation(junction, simulation_duration=simulation_duration)
+        sim = Simulation(junction, pedestrian_crossing, simulation_duration=simulation_duration)
         sim.runSimulation()
 
         # Use StatsCollector to compute statistics
