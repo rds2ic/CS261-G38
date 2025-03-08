@@ -3,7 +3,7 @@ import random
 
 
 class Simulation:
-    def __init__(self, junction : Junction, pedestrian_crossing : PedestrianCrossing = None, bus_cycle_lane: BusCycleLane = None, simulation_duration : int = 3600):
+    def __init__(self, junction : Junction, pedestrian_crossing : PedestrianCrossing = None, bus_cycle_lane : BusCycleLane = None, simulation_duration : int = 3600):
         self.time = 0           # Time in seconds
         self.cycle_length = junction.cycle_length  # Length of a cycle in seconds
         self.junction = junction # Junction config to be used
@@ -115,9 +115,9 @@ class Simulation:
                     movements = ["left", "right","straight"]  
                     movement = random.choice(movements)
                     
-                    car = Vehicle(t, direction, movement)
+                    car = Vehicle(t, movement, vehicle_type="car")
                     
-                    if self.junction.left_turn_lane and car.exit == "left":
+                    if self.junction.left_turn_lane and car.movement == "left":
                         self.left_turn_queues[direction].append(car)
                     else:
                         self.queues[direction].append(car)
@@ -190,6 +190,29 @@ class Simulation:
 
                         wait_time = vehicle.getWaitTime()
                         self.wait_times[direction].append(wait_time)
+                
+                if self.bus_cycle_lane.busesPerHour > 0: 
+                    if self.bus_queue:
+                        bus = self.bus_queue[0]
+                        if last_bus_exit_time == 0:
+                            reaction_time = first_reaction_cost
+                        else:
+                            reaction_time = gap_reaction_cost
+                        if t >= last_bus_exit_time + reaction_time:
+                            bus = self.bus_queue.pop(0)
+                            exit_time = t + 2    #buses are slower
+                            bus.setExit(exit_time)
+                            last_bus_exit_time = exit_time
+                            print("ahahah")
+                        wait_time = bus.getWaitTime()
+                        if wait_time is not None:
+                            self.bus_wait_times.append(wait_time)
+                            self.wait_times[direction].append(wait_time)
+                            
+                    if self.cycle_queue:
+                        cycle = self.cycle_queue.pop(0)
+                        exit_time = t + 0.5
+                        cycle.setExit(exit_time)
                         
             #active phase for left turn queues                   
             for direction in active_phase:
@@ -213,24 +236,6 @@ class Simulation:
                         wait_time = vehicle.getWaitTime()
                         self.wait_times[direction].append(wait_time)
                         
-            if self.bus_queue:
-                bus = self.bus_queue[0]
-                if last_bus_exit_time == 0:
-                    reaction_time = first_reaction_cost
-                else:
-                    reaction_time = gap_reaction_cost
-                if t >= last_bus_exit_time + reaction_time:
-                    bus = self.bus_queue.pop(0)
-                    exit_time = t + 2    #buses are slower
-                    bus.setExit(exit_time)
-                    last_bus_exit_time = exit_time
-                waittime = bus.getWaitTime()
-                if waittime is not None:
-                    self.bus_wait_times.append(waittime)
-                    
-            if self.cycle_queue:
-                cycle = self.cycle_queue.pop(0)
-                exit_time = t + 0.5
-                cycle.setExit(exit_time)
+
 
 
