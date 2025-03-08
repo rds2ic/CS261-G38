@@ -1,15 +1,15 @@
-from models import Junction, Vehicle, PedestrianCrossing, BusCycleLane
+from models import Junction, Vehicle, PedestrianCrossing
 import random
 
 
 class Simulation:
-    def __init__(self, junction : Junction, pedestrian_crossing : PedestrianCrossing = None, bus_cycle_lane : BusCycleLane = None, simulation_duration : int = 3600):
+    def __init__(self, junction : Junction, pedestrian_crossing : PedestrianCrossing = None, simulation_duration : int = 3600):
         self.time = 0           # Time in seconds
         self.cycle_length = junction.cycle_length  # Length of a cycle in seconds
         self.junction = junction # Junction config to be used
         self.simulation_duration = simulation_duration # Duration of the simulation in seconds
         self.pedestrian_crossing = pedestrian_crossing # Pedestrian crossing config to be used
-        self.bus_cycle_lane = bus_cycle_lane 
+
 
         # Queues for each approach and movement
         self.queues = {
@@ -55,22 +55,21 @@ class Simulation:
             'east':  junction.east_traffic,
             'west':  junction.west_traffic
         }
+
+        self.buses_per_hour = junction.buses_per_hour if junction.bus_cycle_lane else 0
+        self.cycles_per_hour = junction.cycles_per_hour if junction.bus_cycle_lane else 0
+
+        self.bus_interval = (3600 / self.buses_per_hour) if self.buses_per_hour > 0 else None
+        self.next_bus_arrival = 0 if self.bus_interval else None
+
+        self.cycle_interval = (3600 / self.cycles_per_hour) if self.cycles_per_hour > 0 else None
+        self.next_cycle_arrival = 0 if self.cycle_interval else None
       
     def runSimulation(self):
         # For each direction and turn, compute the deterministic arrival times
         # Formula for scheduling vehicles: arrival_time = (3600 / vehicles per hour)
         next_arrivals = {}     # next_arrivals[direction] = next arrival time
         arrival_intervals = {} # arrival_intervals[direction] = time between arrivals
-        
-        self.bus_cycle_lane.configureLane()
-        bus_interval = self.bus_cycle_lane.bus_interval
-        cycle_interval = self.bus_cycle_lane.cycle_interval
-        next_bus_arrival = self.bus_cycle_lane.next_bus_arrival
-        next_cycle_arrival = self.bus_cycle_lane.next_cycle_arrival
-        
-
-        self.bus_wait_times = []
-        self.cycle_wait_times = []
 
         # Initialize next_arrivals and arrival_intervals
         for direction, flow in self.traffic_data.items():
@@ -133,18 +132,18 @@ class Simulation:
                 
                 
             #generate bus arrivals
-            if bus_interval is not None and next_bus_arrival is not None:
-                while next_bus_arrival <= t:
+            if self.bus_interval is not None and self.next_bus_arrival is not None:
+                while self.next_bus_arrival <= t:
                     new_bus = Vehicle(entry=t, movement = "straight", vehicle_type="bus")
                     self.bus_queue.append(new_bus)
-                    next_bus_arrival += bus_interval
+                    self.next_bus_arrival += self.bus_interval
 
             #generate bike arrivals
-            if cycle_interval is not None and next_cycle_arrival is not None:
-                while next_cycle_arrival <= t:
+            if self.cycle_interval is not None and self.next_cycle_arrival is not None:
+                while self.next_cycle_arrival <= t:
                     new_cycle = Vehicle(entry=t, movement = "straight", vehicle_type="cycle")
                     self.cycle_queue.append(new_cycle)
-                    next_cycle_arrival += cycle_interval
+                    self.next_cycle_arrival += self.cycle_interval
 
             # Pedestrian crossing request Every x Seconds
             if self.pedestrian_crossing != None:
@@ -191,7 +190,7 @@ class Simulation:
                         wait_time = vehicle.getWaitTime()
                         self.wait_times[direction].append(wait_time)
                 
-                if self.bus_cycle_lane.busesPerHour > 0: 
+                if self.buses_per_hour > 0: 
                     if self.bus_queue:
                         bus = self.bus_queue[0]
                         if last_bus_exit_time == 0:
@@ -203,7 +202,6 @@ class Simulation:
                             exit_time = t + 2    #buses are slower
                             bus.setExit(exit_time)
                             last_bus_exit_time = exit_time
-                            print("ahahah")
                         wait_time = bus.getWaitTime()
                         if wait_time is not None:
                             self.bus_wait_times.append(wait_time)

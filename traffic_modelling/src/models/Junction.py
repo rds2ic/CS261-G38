@@ -8,7 +8,9 @@ class Junction:
                        bus_cycle_lane : bool,
                        pedestrian_crossing : bool,
                        traffic_priority : str,
-                       cycle_length : int):
+                       cycle_length : int,
+                       buses_per_hour: int = 0,
+                       cycles_per_hour: int = 0):
         # tuple[int, int, int] represents the three different directions traffic can flow to
         self.north_traffic = north_traffic
         self.south_traffic = south_traffic
@@ -21,6 +23,8 @@ class Junction:
         self.pedestrian_crossing = pedestrian_crossing
         self.traffic_priority = traffic_priority
         self.cycle_length = cycle_length
+        self.buses_per_hour = buses_per_hour
+        self.cycles_per_hour = cycles_per_hour
 
 class JunctionBuilder:
     def __init__(self):
@@ -31,10 +35,12 @@ class JunctionBuilder:
         self.west_traffic = (0, 0, 0)
         self.lanes = {'north': 2, 'south': 2, 'east': 2, 'west': 2}  # Example default lane setup
         self.left_turn_lane = False
-        self.bus_cycle_lane = None  
+        self.bus_cycle_lane = False  
         self.pedestrian_crossing = {'enabled': False, 'duration': 0, 'requests_per_hour': 0}
         self.traffic_priority = {'north': 0, 'south': 0, 'east': 0, 'west': 0}  # Default priorities
         self.cycle_length = 10
+        self.buses_per_hour = 0
+        self.cycles_per_hour = 0
 
     def set_traffic(self, north_traffic, south_traffic, east_traffic, west_traffic):
         for traffic in [north_traffic, south_traffic, east_traffic, west_traffic]:
@@ -73,8 +79,17 @@ class JunctionBuilder:
             raise ValueError("Cycle length must be positive")
         self.cycle_length = cycle_length
         return self
+    
+    def set_bus_cycle_lane(self, enabled: bool):
+        self.bus_cycle_lane = enabled
+        return self
+
+    def set_bus_and_cycle_flow(self, buses_per_hour: int, cycles_per_hour: int):
+        self.buses_per_hour = buses_per_hour
+        self.cycles_per_hour = cycles_per_hour
+        return self
 
     def build(self):
         return Junction(self.north_traffic, self.south_traffic, self.east_traffic, self.west_traffic,
                         self.lanes, self.left_turn_lane, self.bus_cycle_lane,
-                        self.pedestrian_crossing, self.traffic_priority, self.cycle_length)
+                        self.pedestrian_crossing, self.traffic_priority, self.cycle_length, self.buses_per_hour, self.cycles_per_hour)
