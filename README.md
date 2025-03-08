@@ -52,3 +52,4 @@ We are always here to help and ensure your great experience with the Traffic Jun
 ---
 
 Thank you for choosing the Traffic Junction Modelling Software!
+- Group 38 (Aryan Jitendra, Dhyanam Shah, Haowei Yan, Mehtab Singh, Michael Kyerewa, and Tatsunori Ono)
