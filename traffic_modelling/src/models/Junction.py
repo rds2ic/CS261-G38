@@ -62,6 +62,9 @@ class JunctionBuilder:
         return self
 
     def set_lanes(self, lanes):
+        # validate that lane values are positive integers
+        if not all(isinstance(value, int) and value > 0 for value in lanes.values()):
+            raise ValueError("Number of lanes must be positive")
         self.lanes = lanes
         return self
 
