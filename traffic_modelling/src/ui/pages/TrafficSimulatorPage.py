@@ -836,11 +836,11 @@ class TrafficSimulatorUI(ctk.CTkFrame):
                         )
                     )
                     .build())
-        pedestrian_crossing = None
-        if conf["Special Vehicles"]['Duration North [sec]'] != '' and conf["Special Vehicles"]['Requests North per hour'] != '':
-            pedestrian_crossing = PedestrianCrossing(int(conf["Special Vehicles"]['Duration North [sec]']), int(1 / (float(conf["Special Vehicles"]['Requests North per hour']) / 3600)))
+        # pedestrian_crossing = None
+        # if conf["Special Vehicles"]['Duration North [sec]'] != '' and conf["Special Vehicles"]['Requests North per hour'] != '':
+        #     pedestrian_crossing = PedestrianCrossing(int(conf["Special Vehicles"]['Duration North [sec]']), int(1 / (float(conf["Special Vehicles"]['Requests North per hour']) / 3600)))
         # run the simulation for a default duration (here, 3600sec which is 60min)
-        self.sim = Simulation(junction, pedestrian_crossing=pedestrian_crossing, simulation_duration=3600)
+        self.sim = Simulation(junction, simulation_duration=3600)
         self.sim.runSimulation()
 
         # initialise StatsCollector
