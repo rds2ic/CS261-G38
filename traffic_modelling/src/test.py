@@ -4,7 +4,7 @@ from simulation import StatsCollector
 
 
 
-def run_simulation(north_traffic, south_traffic, east_traffic, west_traffic, lanes, left_turn_lane, bus_cycle_lane, pedestrian_crossing, simulation_duration=3600, buses_per_hour=0,
+def run_simulation(north_traffic, south_traffic, east_traffic, west_traffic, lanes, left_turn_lane, bus_cycle_lane, pedestrian_crossing_enable, simulation_duration=3600, buses_per_hour=0,
         cycles_per_hour=0):
                 
         crossing_time = 7
@@ -16,7 +16,7 @@ def run_simulation(north_traffic, south_traffic, east_traffic, west_traffic, lan
                 .set_left_turn_lane(left_turn_lane)
                 .set_bus_cycle_lane(bus_cycle_lane)
                 .set_bus_and_cycle_flow(buses_per_hour, cycles_per_hour)
-                .set_pedestrian_crossing(enabled=pedestrian_crossing, crossing_time=crossing_time, requests_interval=requests_interval)
+                .set_pedestrian_crossing(enabled=pedestrian_crossing_enable, crossing_time=crossing_time, requests_interval=requests_interval)
                 .build())
         
 
