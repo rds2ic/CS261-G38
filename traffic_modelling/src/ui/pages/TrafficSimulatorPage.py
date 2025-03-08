@@ -37,10 +37,10 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         self.controller = controller # Main tkinter page
 
         # font size and colours
-        self.header_font = ctk.CTkFont(size=16, weight="bold")
-        self.subheader_font = ctk.CTkFont(size=14, weight="bold")
-        self.normal_font = ctk.CTkFont(size=13, weight="bold")
-        self.small_font = ctk.CTkFont(size=12)
+        self.header_font = ctk.CTkFont(size=17, weight="bold")
+        self.subheader_font = ctk.CTkFont(size=15, weight="bold")
+        self.normal_font = ctk.CTkFont(size=14, weight="bold")
+        self.small_font = ctk.CTkFont(size=14)
         self.text_color = "black"
 
         # PANEL SETTINGS
@@ -664,6 +664,22 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         )
         data_label.grid(row=0, column=0, columnspan=3, pady=(5,5))
 
+        # load icons with the correct path
+        avg_icon = ctk.CTkImage(Image.open("assets/avg-icon.png"), size=(30, 30))
+        clock_icon = ctk.CTkImage(Image.open("assets/clock-icon.png"), size=(30, 30))
+        queue_icon = ctk.CTkImage(Image.open("assets/queue-icon.png"), size=(40, 40))
+
+        # add icons in the top row (row 1) to make them appear above the text
+        avg_icon_label_avg = ctk.CTkLabel(parent, image=avg_icon, text="")
+        avg_icon_label_avg.grid(row=1, column=0, pady=(10, 0))
+
+        clock_icon_label_max = ctk.CTkLabel(parent, image=clock_icon, text="")
+        clock_icon_label_max.grid(row=1, column=1, pady=(10, 0))
+
+        queue_icon_label = ctk.CTkLabel(parent, image=queue_icon, text="")
+        queue_icon_label.grid(row=1, column=2, pady=(10, 0))
+
+        # text labels placed in row 2 to be below the icons
         self.avg_lbl = ctk.CTkLabel(
             parent,
             text="Average Wait Time:\nNorthbound: XX sec\nEastbound: XX sec\nSouthbound: XX sec\nWestbound: XX sec",
@@ -671,7 +687,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
             justify="left",
             text_color=self.text_color
         )
-        self.avg_lbl.grid(row=1, column=0, sticky="nw", padx=10, pady=5)
+        self.avg_lbl.grid(row=2, column=0, sticky="n", padx=10, pady=5)
 
         self.max_lbl = ctk.CTkLabel(
             parent,
@@ -680,7 +696,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
             justify="left",
             text_color=self.text_color
         )
-        self.max_lbl.grid(row=1, column=1, sticky="nw", padx=10, pady=5)
+        self.max_lbl.grid(row=2, column=1, sticky="n", padx=10, pady=5)
 
         self.queue_lbl = ctk.CTkLabel(
             parent,
@@ -689,7 +705,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
             justify="left",
             text_color=self.text_color
         )
-        self.queue_lbl.grid(row=1, column=2, sticky="nw", padx=10, pady=5)
+        self.queue_lbl.grid(row=2, column=2, sticky="n", padx=10, pady=5)
 
     #  bottom right main pane (graph)
 
