@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-from pages.TrafficCollectionPage import TrafficCollectionUI
+from ui.pages.TrafficCollectionPage import TrafficCollectionUI
 
 # add the src directory to the system path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
