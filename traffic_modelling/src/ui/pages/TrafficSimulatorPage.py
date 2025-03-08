@@ -92,7 +92,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         self.current_green_direction = 'W'  # Which direction has green light (W, E, N, S)
         self.cars_per_green = 10  # How many cars can pass during one green light
         self.moving_cars = []
-        self.can_reset = False
+        self.has_started = False
 
 
     # TOOLBAR
@@ -186,7 +186,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         # self.show_simulation()
 
     def configure_simulation(self):
-        self.can_reset = True
+        self.has_started = True
         self.current_green_direction = 'W'
         conf = self.make_config()
         count = 0
@@ -801,12 +801,8 @@ class TrafficSimulatorUI(ctk.CTkFrame):
     def run_simulation(self):
         print("clicked Run Simulation")
         if not self.simulation_started:
-            self.configure_simulation()
-            self.simulation_started = True
-            self.show_simulation()
-        elif self.simulation_started and self.can_reset:
-            self.simulation_started = False
-            self.configure_simulation()
+            if not self.has_started:
+                self.configure_simulation()
             self.simulation_started = True
             self.show_simulation()
 
