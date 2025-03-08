@@ -6,7 +6,9 @@ class Junction:
                        lanes : int,
                        left_turn_lane : bool,
                        bus_cycle_lane : bool,
-                       pedestrian_crossing : bool,
+                       pedestrian_enabled: bool,
+                       pedestrian_crossing_time: int,
+                       pedestrian_request_interval: int,
                        traffic_priority : str,
                        cycle_length : int,
                        buses_per_hour: int = 0,
@@ -16,11 +18,14 @@ class Junction:
         self.south_traffic = south_traffic
         self.east_traffic = east_traffic
         self.west_traffic = west_traffic
-
         self.lanes = lanes
         self.left_turn_lane = left_turn_lane
         self.bus_cycle_lane = bus_cycle_lane
-        self.pedestrian_crossing = pedestrian_crossing
+
+        self.pedestrian_enabled = pedestrian_enabled
+        self.pedestrian_crossing_time = pedestrian_crossing_time
+        self.pedestrian_request_interval = pedestrian_request_interval
+
         self.traffic_priority = traffic_priority
         self.cycle_length = cycle_length
         self.buses_per_hour = buses_per_hour
@@ -36,7 +41,9 @@ class JunctionBuilder:
         self.lanes = {'north': 2, 'south': 2, 'east': 2, 'west': 2}  # Example default lane setup
         self.left_turn_lane = False
         self.bus_cycle_lane = False  
-        self.pedestrian_crossing = {'enabled': False, 'duration': 0, 'requests_per_hour': 0}
+        self.pedestrian_enabled = False
+        self.pedestrian_crossing_time = 0
+        self.pedestrian_request_interval = 0
         self.traffic_priority = {'north': 0, 'south': 0, 'east': 0, 'west': 0}  # Default priorities
         self.cycle_length = 10
         self.buses_per_hour = 0
@@ -66,8 +73,14 @@ class JunctionBuilder:
         self.bus_cycle_lane = lane_type
         return self
 
-    def set_pedestrian_crossing(self, enabled, duration, requests_per_hour):
-        self.pedestrian_crossing = {'enabled': enabled, 'duration': duration, 'requests_per_hour': requests_per_hour}
+    def set_pedestrian_crossing(self, enabled, crossing_time, requests_interval):
+        self.pedestrian_enabled = enabled
+        self.pedestrian_crossing_time = crossing_time
+        self.pedestrian_request_interval = requests_interval
+        return self
+
+    def set_traffic_priority(self, priority):
+        self.traffic_priority = priority
         return self
 
     def set_traffic_priority(self, priority):
@@ -92,4 +105,4 @@ class JunctionBuilder:
     def build(self):
         return Junction(self.north_traffic, self.south_traffic, self.east_traffic, self.west_traffic,
                         self.lanes, self.left_turn_lane, self.bus_cycle_lane,
-                        self.pedestrian_crossing, self.traffic_priority, self.cycle_length, self.buses_per_hour, self.cycles_per_hour)
+                        self.pedestrian_enabled, self.pedestrian_crossing_time, self.pedestrian_request_interval, self.traffic_priority, self.cycle_length, self.buses_per_hour, self.cycles_per_hour)

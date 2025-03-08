@@ -3,12 +3,17 @@ import random
 
 
 class Simulation:
-    def __init__(self, junction : Junction, pedestrian_crossing : PedestrianCrossing = None, simulation_duration : int = 3600):
+    def __init__(self, junction : Junction, simulation_duration : int = 3600):
         self.time = 0           # Time in seconds
         self.cycle_length = junction.cycle_length  # Length of a cycle in seconds
         self.junction = junction # Junction config to be used
         self.simulation_duration = simulation_duration # Duration of the simulation in seconds
-        self.pedestrian_crossing = pedestrian_crossing # Pedestrian crossing config to be used
+
+        if junction.pedestrian_enabled:
+            self.pedestrian_crossing = PedestrianCrossing(crossing_time=junction.pedestrian_crossing_time,
+                requests_interval=junction.pedestrian_request_interval)
+        else:
+            self.pedestrian_crossing = None
 
 
         # Queues for each approach and movement

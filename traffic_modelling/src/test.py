@@ -6,20 +6,23 @@ from simulation import StatsCollector
 
 def run_simulation(north_traffic, south_traffic, east_traffic, west_traffic, lanes, left_turn_lane, bus_cycle_lane, pedestrian_crossing, simulation_duration=3600, buses_per_hour=0,
         cycles_per_hour=0):
+                
+        crossing_time = 7
+        requests_interval = 60
+
         junction = (JunctionBuilder()
                 .set_traffic(north_traffic, south_traffic, east_traffic, west_traffic)
                 .set_lanes(lanes)
                 .set_left_turn_lane(left_turn_lane)
                 .set_bus_cycle_lane(bus_cycle_lane)
                 .set_bus_and_cycle_flow(buses_per_hour, cycles_per_hour)
+                .set_pedestrian_crossing(enabled=pedestrian_crossing, crossing_time=crossing_time, requests_interval=requests_interval)
                 .build())
-        # Create a PedestrianCrossing instance which has crossings
-        # The crossings last 7 seconds and are requested every 60 seconds
-        pedestrian_crossing = PedestrianCrossing(7, 60)
+        
 
 
         # Create a Simulation instance for 1 hour (3600 seconds)
-        sim = Simulation(junction, pedestrian_crossing, simulation_duration=simulation_duration)
+        sim = Simulation(junction, simulation_duration=simulation_duration)
         sim.runSimulation()
 
         # Use StatsCollector to compute statistics
@@ -53,8 +56,15 @@ if __name__ == '__main__':
         {"north_traffic": (200, 50, 50), "south_traffic": (1500, 500, 500),
         "east_traffic": (50, 50, 50), "west_traffic": (100, 50, 50),
         "lanes": 3, "left_turn_lane": False, "bus_cycle_lane": True, "pedestrian_crossing": False, "simulation_duration": 3600, 
-        "buses_per_hour": 10, "cycles_per_hour": 20 }
-    ]
+        "buses_per_hour": 10, "cycles_per_hour": 20 },
+
+        {"north_traffic": (200, 50, 50), "south_traffic": (1500, 500, 500),
+        "east_traffic": (50, 50, 50), "west_traffic": (100, 50, 50),
+        "lanes": 3, "left_turn_lane": False, "bus_cycle_lane": False, "pedestrian_crossing": False, "simulation_duration": 3600},
+
+        {"north_traffic": (200, 50, 50), "south_traffic": (1500, 500, 500),
+        "east_traffic": (50, 50, 50), "west_traffic": (100, 50, 50),
+        "lanes": 3, "left_turn_lane": False, "bus_cycle_lane": False, "pedestrian_crossing": True, "simulation_duration": 3600}]
 
         results = []
         for i, scenario in enumerate(scenarios):
