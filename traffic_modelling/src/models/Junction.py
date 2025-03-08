@@ -31,7 +31,7 @@ class JunctionBuilder:
         self.west_traffic = (0, 0, 0)
         self.lanes = {'north': 2, 'south': 2, 'east': 2, 'west': 2}  # Example default lane setup
         self.left_turn_lane = False
-        self.bus_cycle_lane = None  # Can be 'bus', 'cycle', or None
+        self.bus_cycle_lane = None  
         self.pedestrian_crossing = {'enabled': False, 'duration': 0, 'requests_per_hour': 0}
         self.traffic_priority = {'north': 0, 'south': 0, 'east': 0, 'west': 0}  # Default priorities
         self.cycle_length = 10
@@ -49,8 +49,6 @@ class JunctionBuilder:
         return self
 
     def set_lanes(self, lanes):
-        if any(lane < 1 for lane in lanes.values()):
-            raise ValueError("Number of lanes must be positive")
         self.lanes = lanes
         return self
 

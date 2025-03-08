@@ -1,10 +1,10 @@
-from models import Junction, JunctionBuilder, PedestrianCrossing
+from models import Junction, JunctionBuilder, PedestrianCrossing, BusCycleLane
 from simulation import Simulation
 from simulation import StatsCollector
 
 
 
-def run_simulation(north_traffic, south_traffic, east_traffic, west_traffic, lanes, left_turn_lane, simulation_duration=3600):
+def run_simulation(north_traffic, south_traffic, east_traffic, west_traffic, lanes, left_turn_lane, bus_cycle_lane, pedestrian_crossing, simulation_duration=3600):
         junction = (JunctionBuilder()
                 .set_traffic(north_traffic, south_traffic, east_traffic, west_traffic)
                 .set_lanes(lanes)
@@ -13,9 +13,11 @@ def run_simulation(north_traffic, south_traffic, east_traffic, west_traffic, lan
         # Create a PedestrianCrossing instance which has crossings
         # The crossings last 7 seconds and are requested every 60 seconds
         pedestrian_crossing = PedestrianCrossing(7, 60)
+        # create buscyclelane instance
+        bus_cycle_lane = BusCycleLane(busesPerHour=10, cyclesPerHour=20)
 
         # Create a Simulation instance for 1 hour (3600 seconds)
-        sim = Simulation(junction, pedestrian_crossing, simulation_duration=simulation_duration)
+        sim = Simulation(junction, pedestrian_crossing, bus_cycle_lane, simulation_duration=simulation_duration)
         sim.runSimulation()
 
         # Use StatsCollector to compute statistics
@@ -36,11 +38,19 @@ if __name__ == '__main__':
         scenarios = [
         {"north_traffic": (200, 50, 50), "south_traffic": (1500, 500, 500),
         "east_traffic": (50, 50, 50), "west_traffic": (100, 50, 50),
-        "lanes": 3, "left_turn_lane": False, "simulation_duration": 3600},
+        "lanes": 3, "left_turn_lane": False, "bus_cycle_lane": False, "pedestrian_crossing": False, "simulation_duration": 3600},
         
         {"north_traffic": (200, 50, 50), "south_traffic": (1500, 500, 500),
         "east_traffic": (50, 50, 50), "west_traffic": (100, 50, 50),
-        "lanes": 3, "left_turn_lane": True, "simulation_duration": 3600},
+        "lanes": 3, "left_turn_lane": True, "bus_cycle_lane": False, "pedestrian_crossing": False, "simulation_duration": 3600},
+        
+        {"north_traffic": (200, 50, 50), "south_traffic": (1500, 500, 500),
+        "east_traffic": (50, 50, 50), "west_traffic": (100, 50, 50),
+        "lanes": 3, "left_turn_lane": False, "bus_cycle_lane": False, "pedestrian_crossing": False, "simulation_duration": 3600},
+        
+        {"north_traffic": (200, 50, 50), "south_traffic": (1500, 500, 500),
+        "east_traffic": (50, 50, 50), "west_traffic": (100, 50, 50),
+        "lanes": 3, "left_turn_lane": False, "bus_cycle_lane": False, "pedestrian_crossing": True, "simulation_duration": 3600},
     ]
 
         results = []

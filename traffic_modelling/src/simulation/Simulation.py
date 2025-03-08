@@ -1,14 +1,15 @@
-from models import Junction, Vehicle, PedestrianCrossing
+from models import Junction, Vehicle, PedestrianCrossing, BusCycleLane
 import random
 
 
 class Simulation:
-    def __init__(self, junction : Junction, pedestrian_crossing : PedestrianCrossing = None, simulation_duration : int = 3600):
+    def __init__(self, junction : Junction, pedestrian_crossing : PedestrianCrossing = None, bus_cycle_lane: BusCycleLane = None, simulation_duration : int = 3600):
         self.time = 0           # Time in seconds
         self.cycle_length = junction.cycle_length  # Length of a cycle in seconds
         self.junction = junction # Junction config to be used
         self.simulation_duration = simulation_duration # Duration of the simulation in seconds
         self.pedestrian_crossing = pedestrian_crossing # Pedestrian crossing config to be used
+        self.bus_cycle_lane = bus_cycle_lane 
 
         # Queues for each approach and movement
         self.queues = {
@@ -25,6 +26,9 @@ class Simulation:
             'west': []
         }
                
+        self.bus_queue = []
+        self.cycle_queue = []
+               
         # Record wait times per direction.
         self.wait_times = {
             'north': [],
@@ -32,6 +36,9 @@ class Simulation:
             'east': [],
             'west': []
         }
+        
+        self.bus_wait_times = []
+        self.cycle_wait_times = []
 
         # Track maximum queue lengths encountered during simulation.
         self.max_queue_lengths = {
@@ -54,6 +61,16 @@ class Simulation:
         # Formula for scheduling vehicles: arrival_time = (3600 / vehicles per hour)
         next_arrivals = {}     # next_arrivals[direction] = next arrival time
         arrival_intervals = {} # arrival_intervals[direction] = time between arrivals
+        
+        self.bus_cycle_lane.configureLane()
+        bus_interval = self.bus_cycle_lane.bus_interval
+        cycle_interval = self.bus_cycle_lane.cycle_interval
+        next_bus_arrival = self.bus_cycle_lane.next_bus_arrival
+        next_cycle_arrival = self.bus_cycle_lane.next_cycle_arrival
+        
+
+        self.bus_wait_times = []
+        self.cycle_wait_times = []
 
         # Initialize next_arrivals and arrival_intervals
         for direction, flow in self.traffic_data.items():
@@ -81,6 +98,8 @@ class Simulation:
             'east': 0,
             'west': 0
         }
+        
+        last_bus_exit_time = 0
 
         # Main simulation loop
         for t in range(self.simulation_duration):
@@ -96,12 +115,12 @@ class Simulation:
                     movements = ["left", "right","straight"]  
                     movement = random.choice(movements)
                     
-                    vehicle = Vehicle(t, direction, movement)
+                    car = Vehicle(t, direction, movement)
                     
-                    if self.junction.left_turn_lane and vehicle.exit == "left":
-                        self.left_turn_queues[direction].append(vehicle)
+                    if self.junction.left_turn_lane and car.exit == "left":
+                        self.left_turn_queues[direction].append(car)
                     else:
-                        self.queues[direction].append(vehicle)
+                        self.queues[direction].append(car)
 
                     # Schedule next arrival
                     next_arrivals[direction] += interval
@@ -111,6 +130,21 @@ class Simulation:
 
                 # Updae the maximum queue length
                 self.max_queue_lengths[direction] = max(self.max_queue_lengths[direction], len(self.queues[direction]))
+                
+                
+            #generate bus arrivals
+            if bus_interval is not None and next_bus_arrival is not None:
+                while next_bus_arrival <= t:
+                    new_bus = Vehicle(entry=t, movement = "straight", vehicle_type="bus")
+                    self.bus_queue.append(new_bus)
+                    next_bus_arrival += bus_interval
+
+            #generate bike arrivals
+            if cycle_interval is not None and next_cycle_arrival is not None:
+                while next_cycle_arrival <= t:
+                    new_cycle = Vehicle(entry=t, movement = "straight", vehicle_type="cycle")
+                    self.cycle_queue.append(new_cycle)
+                    next_cycle_arrival += cycle_interval
 
             # Pedestrian crossing request Every x Seconds
             if self.pedestrian_crossing != None:
@@ -157,7 +191,7 @@ class Simulation:
                         wait_time = vehicle.getWaitTime()
                         self.wait_times[direction].append(wait_time)
                         
-                                
+            #active phase for left turn queues                   
             for direction in active_phase:
                 if self.junction.left_turn_lane and self.left_turn_queues[direction]:
                     vehicle = self.left_turn_queues[direction][0]  
@@ -178,4 +212,25 @@ class Simulation:
 
                         wait_time = vehicle.getWaitTime()
                         self.wait_times[direction].append(wait_time)
+                        
+            if self.bus_queue:
+                bus = self.bus_queue[0]
+                if last_bus_exit_time == 0:
+                    reaction_time = first_reaction_cost
+                else:
+                    reaction_time = gap_reaction_cost
+                if t >= last_bus_exit_time + reaction_time:
+                    bus = self.bus_queue.pop(0)
+                    exit_time = t + 2    #buses are slower
+                    bus.setExit(exit_time)
+                    last_bus_exit_time = exit_time
+                waittime = bus.getWaitTime()
+                if waittime is not None:
+                    self.bus_wait_times.append(waittime)
+                    
+            if self.cycle_queue:
+                cycle = self.cycle_queue.pop(0)
+                exit_time = t + 0.5
+                cycle.setExit(exit_time)
+
 
