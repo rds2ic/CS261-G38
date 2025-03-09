@@ -693,24 +693,33 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         frame = ctk.CTkFrame(parent, fg_color="#F7F7F7")
         frame.grid(row=0, column=0)
 
+        # load icons
+        save_icon_path = "assets/save-icon.png"
+        load_icon_path = "assets/load-icon.png"
+        save_icon = ctk.CTkImage(Image.open(save_icon_path), size=(20, 20))
+        load_icon = ctk.CTkImage(Image.open(load_icon_path), size=(20, 20))
+
         save_btn = ctk.CTkButton(
             frame,
             text="Save Parameter Settings",
             fg_color="#2E7D32",
             text_color="#FFFFFF",
-            command=self.save_parameters
+            command=self.save_parameters,
+            image=save_icon, 
+            compound="left"
         )
-        save_btn.grid(row=0, column=0, padx=10, pady=5)
+        save_btn.grid(row=0, column=0, padx=5, pady=5)
 
         load_btn = ctk.CTkButton(
             frame,
             text="Load Parameter Settings",
             fg_color="#1565C0",
             text_color="#FFFFFF",
-            command=self.load_parameters
+            command=self.load_parameters,
+            image=load_icon,
+            compound="left"
         )
-        load_btn.grid(row=0, column=1, padx=10, pady=5)
-
+        load_btn.grid(row=0, column=1, padx=5, pady=5)
 
     #  bottom left main pane (data)
 
@@ -854,8 +863,8 @@ class TrafficSimulatorUI(ctk.CTkFrame):
             fg_color="#4CAF50",
             text_color="#FFFFFF",
             command=self.save_junction_data,
-            image=save_icon,  # Add the save icon here
-            compound="left"  # Position the icon to the left of the text
+            image=save_icon,
+            compound="top"
         )
         save_btn.grid(row=1, column=1, sticky="n", padx=10, pady=5)
 
