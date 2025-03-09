@@ -28,7 +28,16 @@ def test_invalid_input_handling():
                          east_traffic=(50, 100, 150),
                          west_traffic=(75, 125, 175))
             .build())
-
+        
+    #test for non integer value
+    with pytest.raises(ValueError, match=r"Traffic values must be an integer"):
+        (JunctionBuilder()
+            .set_traffic(north_traffic=(100, "600", 300), # Non integer value
+                         south_traffic=(150, 250, 350),
+                         east_traffic=(50, 100, 150),
+                         west_traffic=(75, 125, 175))
+            .build())
+    
     #test for invalid lane configuration (such as negative lanes)
     with pytest.raises(ValueError, match="Number of lanes must be positive"):
         JunctionBuilder().set_lanes({'north': -1, 'south': 2, 'east': 2, 'west': 2}).build()
