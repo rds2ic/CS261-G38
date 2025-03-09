@@ -217,6 +217,54 @@ class TrafficCollectionUI(ctk.CTkFrame):
         score_label.grid(row=5, column=0, pady=(5, 10))
         self.make_widget_button(score_label, junction_id)
 
+        # add a delete button
+        delete_btn = ctk.CTkButton(
+            frame,
+            text="Remove this junction",
+            fg_color="#CC0000",
+            text_color="white",
+            command=lambda: self.delete_junction(junction_id),
+            width=100
+        )
+        delete_btn.grid(row=6, column=0, pady=(5, 10)) 
+
+    def delete_junction(self, junction_id):
+        # correct file name without .pkl extension
+        file_name = f"junctions/junction{junction_id}"
+        
+        # list all files in the directory to debug
+        all_files = os.listdir('junctions')
+        print(f"Available files: {all_files}")
+        
+        if os.path.exists(file_name):
+            os.remove(file_name)
+            print(f"Deleted {file_name}")
+            
+            # properly clear and rebuild the scrollable frame
+            for widget in self.scroll_frame.winfo_children():
+                widget.destroy()
+
+            self.scroll_frame.pack_forget()  # hide the scroll frame
+            self.scroll_frame.destroy()  # completely remove the old frame
+
+            # reinitialise the scrollable frame with proper fill behavior
+            self.scroll_frame = ctk.CTkScrollableFrame(
+                self,
+                orientation="horizontal",
+                fg_color="transparent"
+            )
+            self.scroll_frame.pack(side="top", fill="both", expand=True)
+
+            # rebuild the junctions
+            self._build_junction_scroll_area()
+
+            # force update to avoid layout glitches
+            self.update_idletasks()
+            self.master.update()
+        else:
+            print(f"File {file_name} not found!")
+
+
     def _add_stat_group(self, parent, title, column, junction_id, min_value=0, max_value=100):
         group = ctk.CTkFrame(parent, fg_color="#F0F0F0")
         group.grid(row=0, column=column, sticky="nsew", padx=2)
