@@ -51,6 +51,8 @@ class JunctionBuilder:
 
     def set_traffic(self, north_traffic, south_traffic, east_traffic, west_traffic):
         for traffic in [north_traffic, south_traffic, east_traffic, west_traffic]:
+            if not all(isinstance(x, int) for x in traffic):
+                raise ValueError("Traffic values must be an integer")
             if any(value < 0 for value in traffic):
                 raise ValueError("Traffic values must be non-negative")
             if any(value > 10000 for value in traffic):  #assume 10000 as a upper limit (realistically)
