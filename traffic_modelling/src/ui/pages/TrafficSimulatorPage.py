@@ -842,6 +842,10 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         canvas = FigureCanvasTkAgg(fig, master=main_frame)
         canvas.draw()
         canvas.get_tk_widget().grid(row=1, column=0, sticky="nsew", padx=10, pady=5)
+
+        # load the save icon
+        save_icon_path = "assets/save-icon.png"
+        save_icon = ctk.CTkImage(Image.open(save_icon_path), size=(20, 20))
         
         # save data and traffic button
         save_btn = ctk.CTkButton(
@@ -849,7 +853,9 @@ class TrafficSimulatorUI(ctk.CTkFrame):
             text="Save Traffic Junction and Collected Data",
             fg_color="#4CAF50",
             text_color="#FFFFFF",
-            command=self.save_junction_data
+            command=self.save_junction_data,
+            image=save_icon,  # Add the save icon here
+            compound="left"  # Position the icon to the left of the text
         )
         save_btn.grid(row=1, column=1, sticky="n", padx=10, pady=5)
 
