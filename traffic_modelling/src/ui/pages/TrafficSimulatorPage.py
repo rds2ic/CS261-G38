@@ -3,6 +3,7 @@ import customtkinter as ctk
 import pickle
 import sys
 import os
+import pyttsx3 # TTS library
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -35,6 +36,10 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         self.simulation_started = False
 
         self.controller = controller # Main tkinter page
+
+        self.tts_engine = pyttsx3.init()  #initialise text-to-speech engine
+        self.tts_engine.setProperty('rate', 150)  # speech rate
+        self.tts_engine.setProperty('volume', 1)  # volume (0-1)
 
         # font size and colours
         self.header_font = ctk.CTkFont(size=17, weight="bold")
@@ -93,6 +98,11 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         self.cars_per_green = 10  # How many cars can pass during one green light
         self.moving_cars = []
         self.has_started = False
+
+    def speak_text(self, text):
+        self.tts_engine.stop()  #stop on going speech
+        self.tts_engine.say(text)
+        self.tts_engine.runAndWait()
 
 
     # TOOLBAR
@@ -157,6 +167,24 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         )
         speed_om.grid(row=0, column=6, padx=(0,10), pady=5, sticky="w")
 
+        read_aloud_btn = ctk.CTkButton(
+            toolbar,
+            text="Read Aloud",
+            fg_color="#40e0d0",
+            text_color="black",
+            command=self.read_current_data
+        )
+        read_aloud_btn.grid(row=0, column=7, padx=5, pady=5)
+
+    # TTS read aloud of text from collected data area
+    def read_current_data(self):
+        data_text = (
+            "Current Simulation Data:\n"
+            f"Average Wait Time: {self.avg_lbl.cget('text')}\n"
+            f"Maximum Wait Time: {self.max_lbl.cget('text')}\n"
+            f"Queue Length: {self.queue_lbl.cget('text')}\n"
+        )
+        self.speak_text(data_text)
 
     # TOP LEFT MAIN PANE (JUNCTION)
 
