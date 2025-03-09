@@ -55,6 +55,8 @@ class JunctionBuilder:
                 raise ValueError("Traffic values must be non-negative")
             if any(value > 10000 for value in traffic):  #assume 10000 as a upper limit (realistically)
                 raise ValueError("Traffic values exceed realistic limits")
+            if not len(traffic) == 3:
+                raise ValueError("Traffic value missing")
         self.north_traffic = north_traffic
         self.south_traffic = south_traffic
         self.east_traffic = east_traffic
