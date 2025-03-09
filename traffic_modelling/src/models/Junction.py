@@ -81,6 +81,11 @@ class JunctionBuilder:
         return self
 
     def set_pedestrian_crossing(self, enabled, crossing_time, requests_interval):
+        if not (isinstance(crossing_time, int) and isinstance(requests_interval, int)):
+            raise ValueError("Pedestrian Crossing values must be an integer")
+        if not (crossing_time>0 and requests_interval>0):
+            raise ValueError("Pedestrian Crossing values must be greater than 0")
+            
         self.pedestrian_enabled = enabled
         self.pedestrian_crossing_time = crossing_time
         self.pedestrian_request_interval = requests_interval
