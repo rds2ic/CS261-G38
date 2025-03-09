@@ -112,69 +112,91 @@ class TrafficSimulatorUI(ctk.CTkFrame):
         toolbar.pack(side="top", fill="x")
 
         # .grid to position inside the toolbar
-        for col in range(8):
+        for col in range(10):
             toolbar.grid_columnconfigure(col, weight=0)
-        toolbar.grid_columnconfigure(1, weight=1)
-        toolbar.grid_columnconfigure(7, weight=1)
+            toolbar.grid_columnconfigure(1, weight=1)
+            toolbar.grid_columnconfigure(8, weight=1)
 
-        back_button = ctk.CTkButton(
-            toolbar, text="← Go to Traffic Collection",
-            text_color= "white",
-            command=self.go_to_traffic_collection
-        )
-        back_button.grid(row=0, column=0, padx=(10,10), pady=5, sticky="w")
+            back_button = ctk.CTkButton(
+                toolbar, text="← Go to Traffic Collection",
+                text_color="white",
+                command=self.go_to_traffic_collection
+            )
+            back_button.grid(row=0, column=0, padx=(10, 10), pady=5, sticky="w")
 
-        sim_label = ctk.CTkLabel(
-            toolbar,
-            text="Simulation",
-            font=self.header_font,
-            text_color=self.text_color
-        )
-        sim_label.grid(row=0, column=2, padx=5, pady=5)
+            sim_label = ctk.CTkLabel(
+                toolbar,
+                text="Simulation",
+                font=self.header_font,
+                text_color=self.text_color
+            )
+            sim_label.grid(row=0, column=2, padx=5, pady=5)
 
-        run_btn = ctk.CTkButton(
-            toolbar,
-            text="Run",
-            fg_color="#00CC00",
-            text_color="#FFFFFF",
-            command=self.run_simulation
-        )
-        run_btn.grid(row=0, column=3, padx=5, pady=5)
+            run_btn = ctk.CTkButton(
+                toolbar,
+                text="Run",
+                fg_color="#00CC00",
+                text_color="#FFFFFF",
+                command=self.run_simulation
+            )
+            run_btn.grid(row=0, column=3, padx=5, pady=5)
 
-        stop_btn = ctk.CTkButton(
-            toolbar,
-            text="Stop",
-            fg_color="#CC0000",
-            text_color="#FFFFFF",
-            command=self.stop_simulation
-        )
-        stop_btn.grid(row=0, column=4, padx=5, pady=5)
+            stop_btn = ctk.CTkButton(
+                toolbar,
+                text="Stop",
+                fg_color="#CC0000",
+                text_color="#FFFFFF",
+                command=self.stop_simulation
+            )
+            stop_btn.grid(row=0, column=4, padx=5, pady=5)
 
-        speed_label = ctk.CTkLabel(
-            toolbar,
-            text="Simulation speed:",
-            font=self.normal_font,
-            text_color=self.text_color
-        )
-        speed_label.grid(row=0, column=5, padx=(20,5), pady=5, sticky="e")
+            speed_label = ctk.CTkLabel(
+                toolbar,
+                text="Simulation speed:",
+                font=self.normal_font,
+                text_color=self.text_color
+            )
+            speed_label.grid(row=0, column=5, padx=(20, 5), pady=5, sticky="e")
 
-        self.sim_speed_var = tk.StringVar(value="x1")
-        speed_om = ctk.CTkOptionMenu(
-            toolbar,
-            values=["x1", "x1.5", "x2"],
-            variable=self.sim_speed_var,
-            width=70
-        )
-        speed_om.grid(row=0, column=6, padx=(0,10), pady=5, sticky="w")
+            self.sim_speed_var = tk.StringVar(value="x1")
+            speed_om = ctk.CTkOptionMenu(
+                toolbar,
+                values=["x1", "x1.5", "x2"],
+                variable=self.sim_speed_var,
+                width=70
+            )
+            speed_om.grid(row=0, column=6, padx=(0, 10), pady=5, sticky="w")
 
-        read_aloud_btn = ctk.CTkButton(
-            toolbar,
-            text="Read Aloud",
-            fg_color="#40e0d0",
-            text_color="black",
-            command=self.read_current_data
-        )
-        read_aloud_btn.grid(row=0, column=7, padx=5, pady=5)
+            read_aloud_btn = ctk.CTkButton(
+                toolbar,
+                text="Read Aloud",
+                fg_color="#40e0d0",
+                text_color="black",
+                command=self.read_current_data
+            )
+            read_aloud_btn.grid(row=0, column=7, padx=(20, 20), pady=5)
+
+            # create a frame to hold both font size buttons closely
+            font_size_frame = ctk.CTkFrame(toolbar, fg_color="#EEEEEE")
+            font_size_frame.grid(row=0, column=8, padx=(5, 5), pady=5, sticky="w")
+
+            increase_font_btn = ctk.CTkButton(
+                font_size_frame,
+                text="Font size +",
+                fg_color="#2E7D32",
+                text_color="#FFFFFF",
+                command=self.increase_font_size,
+            )
+            increase_font_btn.pack(side="left", padx=(0, 1))
+
+            decrease_font_btn = ctk.CTkButton(
+                font_size_frame,
+                text="Font size -",
+                fg_color="#8B0000",
+                text_color="#FFFFFF",
+                command=self.decrease_font_size
+            )
+            decrease_font_btn.pack(side="left", padx=(1, 0))
 
     # TTS read aloud of text from collected data area
     def read_current_data(self):
@@ -185,6 +207,18 @@ class TrafficSimulatorUI(ctk.CTkFrame):
             f"Queue Length: {self.queue_lbl.cget('text')}\n"
         )
         self.speak_text(data_text)
+
+    def increase_font_size(self):
+        self.header_font.configure(size=self.header_font.cget("size") + 2)
+        self.subheader_font.configure(size=self.subheader_font.cget("size") + 2)
+        self.normal_font.configure(size=self.normal_font.cget("size") + 2)
+        self.small_font.configure(size=self.small_font.cget("size") + 2)
+
+    def decrease_font_size(self):
+        self.header_font.configure(size=self.header_font.cget("size") - 2)
+        self.subheader_font.configure(size=self.subheader_font.cget("size") - 2)
+        self.normal_font.configure(size=self.normal_font.cget("size") - 2)
+        self.small_font.configure(size=self.small_font.cget("size") - 2)
 
     # TOP LEFT MAIN PANE (JUNCTION)
 
