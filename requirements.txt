@@ -3,3 +3,4 @@ darkdetect==0.8.0
 packaging==24.2
 pillow==11.1.0
 pytest==8.3.5
+pyttsx3==2.98
