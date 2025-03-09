@@ -771,7 +771,7 @@ class TrafficSimulatorUI(ctk.CTkFrame):
 
         self.queue_lbl = ctk.CTkLabel(
             parent,
-            text="Maximum Queue Length [cars]:\nNorthbound: XX\nEastbound: XX\nSouthbound: XX\nWestbound: XX",
+            text="Maximum Queue Length:\nNorthbound: XX cars\nEastbound: XX cars\nSouthbound: XX cars\nWestbound: XX cars",
             font=self.small_font,
             justify="left",
             text_color=self.text_color
