@@ -21,7 +21,7 @@ def test_invalid_input_handling():
         ).build()
 
     #test for missing value
-    with pytest.raises(ValueError, match=r"Traffic values exceed realistic limits"):
+    with pytest.raises(ValueError, match=r"Traffic value missing"):
         (JunctionBuilder()
             .set_traffic(north_traffic=( 600, 300), # Missing value
                          south_traffic=(150, 250, 350),
