@@ -20,6 +20,15 @@ def test_invalid_input_handling():
             west_traffic=(0, 0, 0)
         ).build()
 
+    #test for missing value
+    with pytest.raises(ValueError, match=r"Traffic values exceed realistic limits"):
+        (JunctionBuilder()
+            .set_traffic(north_traffic=( 600, 300), # Missing value
+                         south_traffic=(150, 250, 350),
+                         east_traffic=(50, 100, 150),
+                         west_traffic=(75, 125, 175))
+            .build())
+
     #test for invalid lane configuration (such as negative lanes)
     with pytest.raises(ValueError, match="Number of lanes must be positive"):
         JunctionBuilder().set_lanes({'north': -1, 'south': 2, 'east': 2, 'west': 2}).build()
