@@ -947,11 +947,11 @@ class TrafficSimulatorUI(ctk.CTkFrame):
             f"Westbound: {max_wait['west']} sec"
         )
         queue_text = (
-            f"Maximum Queue Length [cars]:\n"
-            f"Northbound: {max_queues['north']}\n"
-            f"Eastbound: {max_queues['east']}\n"
-            f"Southbound: {max_queues['south']}\n"
-            f"Westbound: {max_queues['west']}"
+            f"Maximum Queue Length:\n"
+            f"Northbound: {max_queues['north']} cars\n"
+            f"Eastbound: {max_queues['east']} cars\n"
+            f"Southbound: {max_queues['south']} cars\n"
+            f"Westbound: {max_queues['west']} cars"
         )
 
         self.avg_lbl.configure(text=avg_text)

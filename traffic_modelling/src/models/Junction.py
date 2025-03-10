@@ -51,10 +51,14 @@ class JunctionBuilder:
 
     def set_traffic(self, north_traffic, south_traffic, east_traffic, west_traffic):
         for traffic in [north_traffic, south_traffic, east_traffic, west_traffic]:
+            if not all(isinstance(x, int) for x in traffic):
+                raise ValueError("Traffic values must be an integer")
             if any(value < 0 for value in traffic):
                 raise ValueError("Traffic values must be non-negative")
             if any(value > 10000 for value in traffic):  #assume 10000 as a upper limit (realistically)
                 raise ValueError("Traffic values exceed realistic limits")
+            if not len(traffic) == 3:
+                raise ValueError("Traffic value missing")
         self.north_traffic = north_traffic
         self.south_traffic = south_traffic
         self.east_traffic = east_traffic
@@ -77,6 +81,11 @@ class JunctionBuilder:
         return self
 
     def set_pedestrian_crossing(self, enabled, crossing_time, requests_interval):
+        if not (isinstance(crossing_time, int) and isinstance(requests_interval, int)):
+            raise ValueError("Pedestrian Crossing values must be an integer")
+        if not (crossing_time>0 and requests_interval>0):
+            raise ValueError("Pedestrian Crossing values must be greater than 0")
+            
         self.pedestrian_enabled = enabled
         self.pedestrian_crossing_time = crossing_time
         self.pedestrian_request_interval = requests_interval
